@@ -1,0 +1,553 @@
+{
+  "nasi_putih": {
+    "nama": "Nasi Putih",
+    "nama_en": "White Rice (cooked)",
+    "kategori": "karbohidrat",
+    "per_100g": { "energi": 130, "protein": 2.7, "lemak": 0.3, "karbohidrat": 28.2, "serat": 0.4, "kalsium": 10, "zat_besi": 0.2, "vitamin_a": 0, "vitamin_c": 0 }
+  },
+  "nasi_merah": {
+    "nama": "Nasi Merah",
+    "nama_en": "Brown Rice (cooked)",
+    "kategori": "karbohidrat",
+    "per_100g": { "energi": 110, "protein": 2.6, "lemak": 0.9, "karbohidrat": 23.5, "serat": 1.8, "kalsium": 10, "zat_besi": 0.4, "vitamin_a": 0, "vitamin_c": 0 }
+  },
+  "nasi_jagung": {
+    "nama": "Nasi Jagung",
+    "nama_en": "Corn Rice",
+    "kategori": "karbohidrat",
+    "per_100g": { "energi": 129, "protein": 3.2, "lemak": 1.2, "karbohidrat": 27.0, "serat": 2.8, "kalsium": 5, "zat_besi": 0.5, "vitamin_a": 11, "vitamin_c": 0 }
+  },
+  "mie_goreng": {
+    "nama": "Mie Goreng",
+    "nama_en": "Fried Noodles",
+    "kategori": "karbohidrat",
+    "per_100g": { "energi": 168, "protein": 4.2, "lemak": 6.8, "karbohidrat": 23.1, "serat": 0.9, "kalsium": 15, "zat_besi": 0.8, "vitamin_a": 5, "vitamin_c": 0 }
+  },
+  "mie_rebus": {
+    "nama": "Mie Rebus",
+    "nama_en": "Boiled Noodles",
+    "kategori": "karbohidrat",
+    "per_100g": { "energi": 100, "protein": 3.5, "lemak": 0.5, "karbohidrat": 21.0, "serat": 0.8, "kalsium": 12, "zat_besi": 0.6, "vitamin_a": 0, "vitamin_c": 0 }
+  },
+  "kentang_rebus": {
+    "nama": "Kentang Rebus",
+    "nama_en": "Boiled Potato",
+    "kategori": "karbohidrat",
+    "per_100g": { "energi": 62, "protein": 2.1, "lemak": 0.1, "karbohidrat": 13.5, "serat": 2.0, "kalsium": 5, "zat_besi": 0.3, "vitamin_a": 0, "vitamin_c": 11 }
+  },
+  "singkong_rebus": {
+    "nama": "Singkong Rebus",
+    "nama_en": "Boiled Cassava",
+    "kategori": "karbohidrat",
+    "per_100g": { "energi": 146, "protein": 1.2, "lemak": 0.3, "karbohidrat": 34.7, "serat": 1.8, "kalsium": 33, "zat_besi": 0.7, "vitamin_a": 1, "vitamin_c": 27 }
+  },
+  "ubi_jalar_rebus": {
+    "nama": "Ubi Jalar Rebus",
+    "nama_en": "Boiled Sweet Potato",
+    "kategori": "karbohidrat",
+    "per_100g": { "energi": 76, "protein": 1.6, "lemak": 0.1, "karbohidrat": 17.7, "serat": 2.5, "kalsium": 30, "zat_besi": 0.6, "vitamin_a": 709, "vitamin_c": 12 }
+  },
+  "roti_putih": {
+    "nama": "Roti Putih",
+    "nama_en": "White Bread",
+    "kategori": "karbohidrat",
+    "per_100g": { "energi": 265, "protein": 9.0, "lemak": 3.2, "karbohidrat": 49.0, "serat": 2.7, "kalsium": 72, "zat_besi": 3.6, "vitamin_a": 0, "vitamin_c": 0 }
+  },
+  "lontong": {
+    "nama": "Lontong",
+    "nama_en": "Compressed Rice Cake",
+    "kategori": "karbohidrat",
+    "per_100g": { "energi": 139, "protein": 2.8, "lemak": 0.2, "karbohidrat": 31.0, "serat": 0.3, "kalsium": 8, "zat_besi": 0.3, "vitamin_a": 0, "vitamin_c": 0 }
+  },
+
+  "ayam_goreng": {
+    "nama": "Ayam Goreng",
+    "nama_en": "Fried Chicken",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 260, "protein": 27.0, "lemak": 14.0, "karbohidrat": 6.5, "serat": 0, "kalsium": 15, "zat_besi": 1.1, "vitamin_a": 30, "vitamin_c": 0 }
+  },
+  "ayam_bakar": {
+    "nama": "Ayam Bakar",
+    "nama_en": "Grilled Chicken",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 219, "protein": 27.4, "lemak": 11.4, "karbohidrat": 1.6, "serat": 0, "kalsium": 15, "zat_besi": 1.3, "vitamin_a": 25, "vitamin_c": 0 }
+  },
+  "ayam_rebus": {
+    "nama": "Ayam Rebus",
+    "nama_en": "Boiled Chicken",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 190, "protein": 29.0, "lemak": 7.4, "karbohidrat": 0, "serat": 0, "kalsium": 12, "zat_besi": 1.0, "vitamin_a": 20, "vitamin_c": 0 }
+  },
+  "ayam_kecap": {
+    "nama": "Ayam Kecap",
+    "nama_en": "Sweet Soy Sauce Chicken",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 225, "protein": 24.0, "lemak": 10.0, "karbohidrat": 8.5, "serat": 0, "kalsium": 14, "zat_besi": 1.2, "vitamin_a": 22, "vitamin_c": 0 }
+  },
+  "ayam_serundeng": {
+    "nama": "Ayam Serundeng",
+    "nama_en": "Chicken with Spiced Coconut",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 280, "protein": 23.0, "lemak": 18.0, "karbohidrat": 6.0, "serat": 2.0, "kalsium": 20, "zat_besi": 1.5, "vitamin_a": 15, "vitamin_c": 0 }
+  },
+  "telur_dadar": {
+    "nama": "Telur Dadar",
+    "nama_en": "Fried Egg Omelette",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 196, "protein": 13.6, "lemak": 15.3, "karbohidrat": 0.8, "serat": 0, "kalsium": 56, "zat_besi": 1.8, "vitamin_a": 190, "vitamin_c": 0 }
+  },
+  "telur_rebus": {
+    "nama": "Telur Rebus",
+    "nama_en": "Boiled Egg",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 154, "protein": 12.6, "lemak": 10.6, "karbohidrat": 1.1, "serat": 0, "kalsium": 50, "zat_besi": 1.2, "vitamin_a": 149, "vitamin_c": 0 }
+  },
+  "telur_ceplok": {
+    "nama": "Telur Ceplok",
+    "nama_en": "Fried Egg",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 196, "protein": 13.6, "lemak": 15.3, "karbohidrat": 0.8, "serat": 0, "kalsium": 56, "zat_besi": 1.8, "vitamin_a": 190, "vitamin_c": 0 }
+  },
+  "telur_balado": {
+    "nama": "Telur Balado",
+    "nama_en": "Egg in Chili Sauce",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 180, "protein": 12.0, "lemak": 12.5, "karbohidrat": 4.5, "serat": 0.5, "kalsium": 50, "zat_besi": 1.5, "vitamin_a": 200, "vitamin_c": 15 }
+  },
+  "ikan_goreng": {
+    "nama": "Ikan Goreng",
+    "nama_en": "Fried Fish",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 199, "protein": 22.0, "lemak": 11.0, "karbohidrat": 3.0, "serat": 0, "kalsium": 50, "zat_besi": 0.9, "vitamin_a": 30, "vitamin_c": 0 }
+  },
+  "ikan_bakar": {
+    "nama": "Ikan Bakar",
+    "nama_en": "Grilled Fish",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 166, "protein": 23.0, "lemak": 7.0, "karbohidrat": 2.0, "serat": 0, "kalsium": 40, "zat_besi": 0.8, "vitamin_a": 25, "vitamin_c": 0 }
+  },
+  "ikan_pindang": {
+    "nama": "Ikan Pindang",
+    "nama_en": "Braised Fish",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 142, "protein": 22.5, "lemak": 5.0, "karbohidrat": 1.5, "serat": 0, "kalsium": 45, "zat_besi": 1.0, "vitamin_a": 20, "vitamin_c": 2 }
+  },
+  "ikan_tongkol": {
+    "nama": "Ikan Tongkol",
+    "nama_en": "Skipjack Tuna",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 109, "protein": 24.0, "lemak": 1.0, "karbohidrat": 0, "serat": 0, "kalsium": 40, "zat_besi": 1.0, "vitamin_a": 10, "vitamin_c": 0 }
+  },
+  "ikan_lele_goreng": {
+    "nama": "Ikan Lele Goreng",
+    "nama_en": "Fried Catfish",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 215, "protein": 18.0, "lemak": 14.0, "karbohidrat": 4.0, "serat": 0, "kalsium": 35, "zat_besi": 0.8, "vitamin_a": 20, "vitamin_c": 0 }
+  },
+  "ikan_nila_goreng": {
+    "nama": "Ikan Nila Goreng",
+    "nama_en": "Fried Tilapia",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 195, "protein": 20.0, "lemak": 11.0, "karbohidrat": 3.5, "serat": 0, "kalsium": 30, "zat_besi": 0.7, "vitamin_a": 15, "vitamin_c": 0 }
+  },
+  "sarden_kaleng": {
+    "nama": "Sarden Kaleng",
+    "nama_en": "Canned Sardines",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 208, "protein": 21.0, "lemak": 11.5, "karbohidrat": 4.0, "serat": 0, "kalsium": 382, "zat_besi": 2.9, "vitamin_a": 50, "vitamin_c": 1 }
+  },
+  "daging_sapi_rendang": {
+    "nama": "Rendang Sapi",
+    "nama_en": "Beef Rendang",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 193, "protein": 22.6, "lemak": 10.0, "karbohidrat": 4.0, "serat": 1.0, "kalsium": 20, "zat_besi": 2.5, "vitamin_a": 15, "vitamin_c": 2 }
+  },
+  "daging_sapi_goreng": {
+    "nama": "Daging Sapi Goreng",
+    "nama_en": "Fried Beef",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 250, "protein": 26.0, "lemak": 15.0, "karbohidrat": 2.0, "serat": 0, "kalsium": 11, "zat_besi": 2.6, "vitamin_a": 10, "vitamin_c": 0 }
+  },
+  "bakso_sapi": {
+    "nama": "Bakso Sapi",
+    "nama_en": "Beef Meatball",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 190, "protein": 11.0, "lemak": 8.0, "karbohidrat": 17.0, "serat": 0.5, "kalsium": 25, "zat_besi": 1.5, "vitamin_a": 5, "vitamin_c": 0 }
+  },
+  "sosis": {
+    "nama": "Sosis",
+    "nama_en": "Sausage",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 301, "protein": 11.0, "lemak": 25.0, "karbohidrat": 8.0, "serat": 0, "kalsium": 12, "zat_besi": 1.2, "vitamin_a": 10, "vitamin_c": 0 }
+  },
+  "nugget_ayam": {
+    "nama": "Nugget Ayam",
+    "nama_en": "Chicken Nugget",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 296, "protein": 14.0, "lemak": 18.0, "karbohidrat": 19.0, "serat": 1.0, "kalsium": 20, "zat_besi": 0.9, "vitamin_a": 10, "vitamin_c": 0 }
+  },
+  "kornet_sapi": {
+    "nama": "Kornet Sapi",
+    "nama_en": "Corned Beef",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 198, "protein": 25.0, "lemak": 10.0, "karbohidrat": 1.5, "serat": 0, "kalsium": 10, "zat_besi": 2.0, "vitamin_a": 5, "vitamin_c": 0 }
+  },
+  "udang_goreng": {
+    "nama": "Udang Goreng",
+    "nama_en": "Fried Shrimp",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 242, "protein": 20.0, "lemak": 12.0, "karbohidrat": 12.0, "serat": 0, "kalsium": 80, "zat_besi": 1.5, "vitamin_a": 15, "vitamin_c": 0 }
+  },
+  "cumi_goreng": {
+    "nama": "Cumi Goreng",
+    "nama_en": "Fried Squid",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 195, "protein": 18.0, "lemak": 8.0, "karbohidrat": 10.0, "serat": 0, "kalsium": 30, "zat_besi": 1.0, "vitamin_a": 10, "vitamin_c": 0 }
+  },
+
+  "tempe_goreng": {
+    "nama": "Tempe Goreng",
+    "nama_en": "Fried Tempeh",
+    "kategori": "protein_nabati",
+    "per_100g": { "energi": 225, "protein": 18.3, "lemak": 13.5, "karbohidrat": 10.0, "serat": 1.4, "kalsium": 111, "zat_besi": 4.0, "vitamin_a": 5, "vitamin_c": 0 }
+  },
+  "tempe_bacem": {
+    "nama": "Tempe Bacem",
+    "nama_en": "Braised Sweet Tempeh",
+    "kategori": "protein_nabati",
+    "per_100g": { "energi": 200, "protein": 16.0, "lemak": 10.0, "karbohidrat": 14.0, "serat": 1.5, "kalsium": 100, "zat_besi": 3.5, "vitamin_a": 5, "vitamin_c": 0 }
+  },
+  "tempe_mendoan": {
+    "nama": "Tempe Mendoan",
+    "nama_en": "Thinly Fried Tempeh",
+    "kategori": "protein_nabati",
+    "per_100g": { "energi": 240, "protein": 15.0, "lemak": 16.0, "karbohidrat": 12.0, "serat": 1.0, "kalsium": 95, "zat_besi": 3.0, "vitamin_a": 5, "vitamin_c": 0 }
+  },
+  "tempe_orek": {
+    "nama": "Tempe Orek",
+    "nama_en": "Stir-fried Tempeh in Sweet Soy",
+    "kategori": "protein_nabati",
+    "per_100g": { "energi": 210, "protein": 16.5, "lemak": 11.0, "karbohidrat": 13.5, "serat": 1.5, "kalsium": 105, "zat_besi": 3.8, "vitamin_a": 5, "vitamin_c": 0 }
+  },
+  "tahu_goreng": {
+    "nama": "Tahu Goreng",
+    "nama_en": "Fried Tofu",
+    "kategori": "protein_nabati",
+    "per_100g": { "energi": 271, "protein": 17.0, "lemak": 19.0, "karbohidrat": 8.5, "serat": 0.5, "kalsium": 223, "zat_besi": 3.4, "vitamin_a": 0, "vitamin_c": 0 }
+  },
+  "tahu_bacem": {
+    "nama": "Tahu Bacem",
+    "nama_en": "Braised Sweet Tofu",
+    "kategori": "protein_nabati",
+    "per_100g": { "energi": 185, "protein": 14.0, "lemak": 10.5, "karbohidrat": 10.0, "serat": 0.5, "kalsium": 200, "zat_besi": 3.0, "vitamin_a": 0, "vitamin_c": 0 }
+  },
+  "tahu_isi": {
+    "nama": "Tahu Isi",
+    "nama_en": "Stuffed Tofu",
+    "kategori": "protein_nabati",
+    "per_100g": { "energi": 235, "protein": 12.0, "lemak": 15.0, "karbohidrat": 14.0, "serat": 1.0, "kalsium": 180, "zat_besi": 2.5, "vitamin_a": 15, "vitamin_c": 2 }
+  },
+  "perkedel_tahu": {
+    "nama": "Perkedel Tahu",
+    "nama_en": "Tofu Fritter",
+    "kategori": "protein_nabati",
+    "per_100g": { "energi": 220, "protein": 13.0, "lemak": 14.0, "karbohidrat": 11.0, "serat": 0.8, "kalsium": 175, "zat_besi": 2.8, "vitamin_a": 10, "vitamin_c": 0 }
+  },
+  "kacang_tanah_goreng": {
+    "nama": "Kacang Tanah Goreng",
+    "nama_en": "Fried Peanuts",
+    "kategori": "protein_nabati",
+    "per_100g": { "energi": 580, "protein": 26.0, "lemak": 49.0, "karbohidrat": 16.0, "serat": 8.0, "kalsium": 92, "zat_besi": 4.6, "vitamin_a": 0, "vitamin_c": 0 }
+  },
+  "oncom_goreng": {
+    "nama": "Oncom Goreng",
+    "nama_en": "Fried Fermented Soybean Cake",
+    "kategori": "protein_nabati",
+    "per_100g": { "energi": 187, "protein": 13.0, "lemak": 11.0, "karbohidrat": 10.0, "serat": 2.0, "kalsium": 80, "zat_besi": 3.0, "vitamin_a": 0, "vitamin_c": 0 }
+  },
+
+  "sayur_bayam": {
+    "nama": "Sayur Bayam",
+    "nama_en": "Spinach Soup",
+    "kategori": "sayur",
+    "per_100g": { "energi": 36, "protein": 3.5, "lemak": 0.5, "karbohidrat": 5.5, "serat": 2.2, "kalsium": 136, "zat_besi": 3.5, "vitamin_a": 292, "vitamin_c": 41 }
+  },
+  "sayur_sop": {
+    "nama": "Sayur Sop",
+    "nama_en": "Vegetable Soup",
+    "kategori": "sayur",
+    "per_100g": { "energi": 42, "protein": 2.0, "lemak": 1.0, "karbohidrat": 6.5, "serat": 1.5, "kalsium": 25, "zat_besi": 0.5, "vitamin_a": 100, "vitamin_c": 12 }
+  },
+  "sayur_asem": {
+    "nama": "Sayur Asem",
+    "nama_en": "Tamarind Vegetable Soup",
+    "kategori": "sayur",
+    "per_100g": { "energi": 38, "protein": 1.8, "lemak": 0.5, "karbohidrat": 7.0, "serat": 1.8, "kalsium": 30, "zat_besi": 0.6, "vitamin_a": 80, "vitamin_c": 15 }
+  },
+  "sayur_lodeh": {
+    "nama": "Sayur Lodeh",
+    "nama_en": "Vegetables in Coconut Milk",
+    "kategori": "sayur",
+    "per_100g": { "energi": 68, "protein": 2.5, "lemak": 4.0, "karbohidrat": 6.0, "serat": 1.5, "kalsium": 35, "zat_besi": 0.7, "vitamin_a": 90, "vitamin_c": 10 }
+  },
+  "capcay": {
+    "nama": "Capcay",
+    "nama_en": "Stir-fried Mixed Vegetables",
+    "kategori": "sayur",
+    "per_100g": { "energi": 55, "protein": 3.0, "lemak": 2.5, "karbohidrat": 5.5, "serat": 2.0, "kalsium": 40, "zat_besi": 1.0, "vitamin_a": 150, "vitamin_c": 20 }
+  },
+  "tumis_kangkung": {
+    "nama": "Tumis Kangkung",
+    "nama_en": "Stir-fried Water Spinach",
+    "kategori": "sayur",
+    "per_100g": { "energi": 56, "protein": 3.0, "lemak": 3.0, "karbohidrat": 5.0, "serat": 2.0, "kalsium": 73, "zat_besi": 1.7, "vitamin_a": 290, "vitamin_c": 55 }
+  },
+  "tumis_buncis": {
+    "nama": "Tumis Buncis",
+    "nama_en": "Stir-fried Green Beans",
+    "kategori": "sayur",
+    "per_100g": { "energi": 47, "protein": 2.3, "lemak": 2.0, "karbohidrat": 5.5, "serat": 2.5, "kalsium": 37, "zat_besi": 1.1, "vitamin_a": 35, "vitamin_c": 12 }
+  },
+  "tumis_tauge": {
+    "nama": "Tumis Tauge",
+    "nama_en": "Stir-fried Bean Sprouts",
+    "kategori": "sayur",
+    "per_100g": { "energi": 45, "protein": 3.0, "lemak": 2.0, "karbohidrat": 4.0, "serat": 1.5, "kalsium": 13, "zat_besi": 0.9, "vitamin_a": 10, "vitamin_c": 13 }
+  },
+  "sayur_bening": {
+    "nama": "Sayur Bening",
+    "nama_en": "Clear Vegetable Soup",
+    "kategori": "sayur",
+    "per_100g": { "energi": 30, "protein": 2.0, "lemak": 0.3, "karbohidrat": 5.0, "serat": 1.5, "kalsium": 50, "zat_besi": 1.0, "vitamin_a": 150, "vitamin_c": 25 }
+  },
+  "lalapan_mentimun": {
+    "nama": "Mentimun / Lalapan",
+    "nama_en": "Cucumber Slices",
+    "kategori": "sayur",
+    "per_100g": { "energi": 15, "protein": 0.7, "lemak": 0.1, "karbohidrat": 3.6, "serat": 0.5, "kalsium": 16, "zat_besi": 0.3, "vitamin_a": 5, "vitamin_c": 2.8 }
+  },
+  "lalapan_kemangi": {
+    "nama": "Kemangi",
+    "nama_en": "Lemon Basil Leaves",
+    "kategori": "sayur",
+    "per_100g": { "energi": 23, "protein": 3.2, "lemak": 0.6, "karbohidrat": 2.7, "serat": 1.6, "kalsium": 177, "zat_besi": 3.2, "vitamin_a": 264, "vitamin_c": 18 }
+  },
+  "terong_balado": {
+    "nama": "Terong Balado",
+    "nama_en": "Eggplant in Chili Sauce",
+    "kategori": "sayur",
+    "per_100g": { "energi": 72, "protein": 1.5, "lemak": 4.5, "karbohidrat": 7.0, "serat": 2.5, "kalsium": 15, "zat_besi": 0.5, "vitamin_a": 30, "vitamin_c": 5 }
+  },
+  "wortel_rebus": {
+    "nama": "Wortel",
+    "nama_en": "Carrots (cooked)",
+    "kategori": "sayur",
+    "per_100g": { "energi": 35, "protein": 0.8, "lemak": 0.2, "karbohidrat": 8.2, "serat": 2.8, "kalsium": 30, "zat_besi": 0.3, "vitamin_a": 852, "vitamin_c": 3.6 }
+  },
+  "kol_goreng": {
+    "nama": "Kol / Kubis",
+    "nama_en": "Cabbage (stir-fried)",
+    "kategori": "sayur",
+    "per_100g": { "energi": 25, "protein": 1.3, "lemak": 0.1, "karbohidrat": 5.8, "serat": 2.5, "kalsium": 40, "zat_besi": 0.5, "vitamin_a": 5, "vitamin_c": 36 }
+  },
+  "tumis_labu_siam": {
+    "nama": "Tumis Labu Siam",
+    "nama_en": "Stir-fried Chayote",
+    "kategori": "sayur",
+    "per_100g": { "energi": 35, "protein": 1.0, "lemak": 1.5, "karbohidrat": 5.0, "serat": 1.7, "kalsium": 17, "zat_besi": 0.3, "vitamin_a": 5, "vitamin_c": 8 }
+  },
+  "urap_sayur": {
+    "nama": "Urap Sayur",
+    "nama_en": "Vegetables in Spiced Coconut",
+    "kategori": "sayur",
+    "per_100g": { "energi": 90, "protein": 3.5, "lemak": 5.0, "karbohidrat": 8.0, "serat": 3.0, "kalsium": 60, "zat_besi": 1.5, "vitamin_a": 120, "vitamin_c": 15 }
+  },
+  "gado_gado": {
+    "nama": "Gado-gado",
+    "nama_en": "Vegetables with Peanut Sauce",
+    "kategori": "sayur",
+    "per_100g": { "energi": 110, "protein": 5.0, "lemak": 6.5, "karbohidrat": 9.0, "serat": 2.5, "kalsium": 50, "zat_besi": 1.5, "vitamin_a": 80, "vitamin_c": 10 }
+  },
+  "pecel": {
+    "nama": "Pecel",
+    "nama_en": "Vegetables with Spicy Peanut Sauce",
+    "kategori": "sayur",
+    "per_100g": { "energi": 115, "protein": 5.5, "lemak": 7.0, "karbohidrat": 8.5, "serat": 2.5, "kalsium": 55, "zat_besi": 1.8, "vitamin_a": 85, "vitamin_c": 12 }
+  },
+
+  "pisang": {
+    "nama": "Pisang",
+    "nama_en": "Banana",
+    "kategori": "buah",
+    "per_100g": { "energi": 89, "protein": 1.1, "lemak": 0.3, "karbohidrat": 22.8, "serat": 2.6, "kalsium": 5, "zat_besi": 0.3, "vitamin_a": 3, "vitamin_c": 8.7 }
+  },
+  "pepaya": {
+    "nama": "Pepaya",
+    "nama_en": "Papaya",
+    "kategori": "buah",
+    "per_100g": { "energi": 43, "protein": 0.5, "lemak": 0.3, "karbohidrat": 10.8, "serat": 1.7, "kalsium": 20, "zat_besi": 0.3, "vitamin_a": 47, "vitamin_c": 60.9 }
+  },
+  "jeruk": {
+    "nama": "Jeruk",
+    "nama_en": "Orange",
+    "kategori": "buah",
+    "per_100g": { "energi": 47, "protein": 0.9, "lemak": 0.1, "karbohidrat": 11.7, "serat": 2.4, "kalsium": 40, "zat_besi": 0.1, "vitamin_a": 11, "vitamin_c": 53.2 }
+  },
+  "semangka": {
+    "nama": "Semangka",
+    "nama_en": "Watermelon",
+    "kategori": "buah",
+    "per_100g": { "energi": 30, "protein": 0.6, "lemak": 0.2, "karbohidrat": 7.6, "serat": 0.4, "kalsium": 7, "zat_besi": 0.2, "vitamin_a": 28, "vitamin_c": 8.1 }
+  },
+  "melon": {
+    "nama": "Melon",
+    "nama_en": "Melon",
+    "kategori": "buah",
+    "per_100g": { "energi": 36, "protein": 0.8, "lemak": 0.2, "karbohidrat": 8.6, "serat": 0.9, "kalsium": 9, "zat_besi": 0.2, "vitamin_a": 169, "vitamin_c": 36.7 }
+  },
+  "apel": {
+    "nama": "Apel",
+    "nama_en": "Apple",
+    "kategori": "buah",
+    "per_100g": { "energi": 52, "protein": 0.3, "lemak": 0.2, "karbohidrat": 13.8, "serat": 2.4, "kalsium": 6, "zat_besi": 0.1, "vitamin_a": 3, "vitamin_c": 4.6 }
+  },
+  "anggur": {
+    "nama": "Anggur",
+    "nama_en": "Grapes",
+    "kategori": "buah",
+    "per_100g": { "energi": 69, "protein": 0.7, "lemak": 0.2, "karbohidrat": 18.1, "serat": 0.9, "kalsium": 10, "zat_besi": 0.4, "vitamin_a": 3, "vitamin_c": 3.2 }
+  },
+  "mangga": {
+    "nama": "Mangga",
+    "nama_en": "Mango",
+    "kategori": "buah",
+    "per_100g": { "energi": 60, "protein": 0.8, "lemak": 0.4, "karbohidrat": 15.0, "serat": 1.6, "kalsium": 11, "zat_besi": 0.2, "vitamin_a": 54, "vitamin_c": 36.4 }
+  },
+  "jambu_biji": {
+    "nama": "Jambu Biji",
+    "nama_en": "Guava",
+    "kategori": "buah",
+    "per_100g": { "energi": 68, "protein": 2.6, "lemak": 1.0, "karbohidrat": 14.3, "serat": 5.4, "kalsium": 18, "zat_besi": 0.3, "vitamin_a": 31, "vitamin_c": 228 }
+  },
+  "nanas": {
+    "nama": "Nanas",
+    "nama_en": "Pineapple",
+    "kategori": "buah",
+    "per_100g": { "energi": 50, "protein": 0.5, "lemak": 0.1, "karbohidrat": 13.1, "serat": 1.4, "kalsium": 13, "zat_besi": 0.3, "vitamin_a": 3, "vitamin_c": 47.8 }
+  },
+  "kelengkeng": {
+    "nama": "Kelengkeng",
+    "nama_en": "Longan",
+    "kategori": "buah",
+    "per_100g": { "energi": 60, "protein": 1.3, "lemak": 0.1, "karbohidrat": 15.1, "serat": 1.1, "kalsium": 1, "zat_besi": 0.1, "vitamin_a": 0, "vitamin_c": 84 }
+  },
+  "salak": {
+    "nama": "Salak",
+    "nama_en": "Snake Fruit",
+    "kategori": "buah",
+    "per_100g": { "energi": 82, "protein": 0.4, "lemak": 0.4, "karbohidrat": 21.3, "serat": 2.0, "kalsium": 28, "zat_besi": 4.2, "vitamin_a": 0, "vitamin_c": 2 }
+  },
+  "rambutan": {
+    "nama": "Rambutan",
+    "nama_en": "Rambutan",
+    "kategori": "buah",
+    "per_100g": { "energi": 82, "protein": 0.7, "lemak": 0.2, "karbohidrat": 20.9, "serat": 0.9, "kalsium": 22, "zat_besi": 0.4, "vitamin_a": 0, "vitamin_c": 4.9 }
+  },
+
+  "sambal_terasi": {
+    "nama": "Sambal Terasi",
+    "nama_en": "Shrimp Paste Chili Sauce",
+    "kategori": "lainnya",
+    "per_100g": { "energi": 90, "protein": 3.0, "lemak": 5.0, "karbohidrat": 8.5, "serat": 2.5, "kalsium": 25, "zat_besi": 1.0, "vitamin_a": 200, "vitamin_c": 25 }
+  },
+  "sambal_goreng_kentang": {
+    "nama": "Sambal Goreng Kentang",
+    "nama_en": "Fried Potato in Chili",
+    "kategori": "lainnya",
+    "per_100g": { "energi": 150, "protein": 3.0, "lemak": 8.0, "karbohidrat": 17.0, "serat": 2.0, "kalsium": 15, "zat_besi": 0.6, "vitamin_a": 30, "vitamin_c": 8 }
+  },
+  "kerupuk": {
+    "nama": "Kerupuk",
+    "nama_en": "Crackers",
+    "kategori": "lainnya",
+    "per_100g": { "energi": 428, "protein": 6.0, "lemak": 20.0, "karbohidrat": 56.0, "serat": 0.5, "kalsium": 25, "zat_besi": 1.0, "vitamin_a": 0, "vitamin_c": 0 }
+  },
+  "emping": {
+    "nama": "Emping",
+    "nama_en": "Melinjo Crackers",
+    "kategori": "lainnya",
+    "per_100g": { "energi": 345, "protein": 12.0, "lemak": 3.0, "karbohidrat": 70.0, "serat": 3.0, "kalsium": 60, "zat_besi": 2.0, "vitamin_a": 0, "vitamin_c": 0 }
+  },
+  "perkedel_kentang": {
+    "nama": "Perkedel Kentang",
+    "nama_en": "Potato Fritter",
+    "kategori": "lainnya",
+    "per_100g": { "energi": 188, "protein": 5.0, "lemak": 10.0, "karbohidrat": 20.0, "serat": 1.5, "kalsium": 20, "zat_besi": 0.8, "vitamin_a": 10, "vitamin_c": 6 }
+  },
+  "mie_kuah": {
+    "nama": "Mie Kuah",
+    "nama_en": "Noodle Soup",
+    "kategori": "karbohidrat",
+    "per_100g": { "energi": 95, "protein": 3.5, "lemak": 1.0, "karbohidrat": 18.0, "serat": 0.8, "kalsium": 15, "zat_besi": 0.5, "vitamin_a": 5, "vitamin_c": 0 }
+  },
+  "nasi_goreng": {
+    "nama": "Nasi Goreng",
+    "nama_en": "Fried Rice",
+    "kategori": "karbohidrat",
+    "per_100g": { "energi": 168, "protein": 4.5, "lemak": 5.5, "karbohidrat": 25.0, "serat": 0.5, "kalsium": 15, "zat_besi": 0.5, "vitamin_a": 20, "vitamin_c": 2 }
+  },
+  "nasi_kuning": {
+    "nama": "Nasi Kuning",
+    "nama_en": "Yellow Rice",
+    "kategori": "karbohidrat",
+    "per_100g": { "energi": 148, "protein": 2.8, "lemak": 3.5, "karbohidrat": 26.0, "serat": 0.5, "kalsium": 12, "zat_besi": 0.3, "vitamin_a": 5, "vitamin_c": 0 }
+  },
+  "nasi_uduk": {
+    "nama": "Nasi Uduk",
+    "nama_en": "Coconut Rice",
+    "kategori": "karbohidrat",
+    "per_100g": { "energi": 155, "protein": 2.6, "lemak": 4.8, "karbohidrat": 25.5, "serat": 0.4, "kalsium": 10, "zat_besi": 0.3, "vitamin_a": 0, "vitamin_c": 0 }
+  },
+  "bubur_ayam": {
+    "nama": "Bubur Ayam",
+    "nama_en": "Chicken Porridge",
+    "kategori": "karbohidrat",
+    "per_100g": { "energi": 65, "protein": 4.0, "lemak": 1.5, "karbohidrat": 9.5, "serat": 0.2, "kalsium": 12, "zat_besi": 0.4, "vitamin_a": 5, "vitamin_c": 0 }
+  },
+  "sayur_nangka": {
+    "nama": "Sayur Nangka / Gudeg",
+    "nama_en": "Jackfruit Curry",
+    "kategori": "sayur",
+    "per_100g": { "energi": 95, "protein": 1.5, "lemak": 5.0, "karbohidrat": 12.0, "serat": 1.5, "kalsium": 25, "zat_besi": 0.6, "vitamin_a": 20, "vitamin_c": 5 }
+  },
+  "abon_sapi": {
+    "nama": "Abon Sapi",
+    "nama_en": "Beef Floss",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 253, "protein": 30.0, "lemak": 13.0, "karbohidrat": 4.0, "serat": 0, "kalsium": 15, "zat_besi": 3.0, "vitamin_a": 5, "vitamin_c": 0 }
+  },
+  "abon_ayam": {
+    "nama": "Abon Ayam",
+    "nama_en": "Chicken Floss",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 245, "protein": 28.0, "lemak": 12.0, "karbohidrat": 5.0, "serat": 0.5, "kalsium": 12, "zat_besi": 1.5, "vitamin_a": 5, "vitamin_c": 0 }
+  },
+  "sup_ayam": {
+    "nama": "Sup Ayam",
+    "nama_en": "Chicken Soup",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 50, "protein": 5.0, "lemak": 2.5, "karbohidrat": 2.0, "serat": 0.5, "kalsium": 10, "zat_besi": 0.4, "vitamin_a": 30, "vitamin_c": 3 }
+  },
+  "opor_ayam": {
+    "nama": "Opor Ayam",
+    "nama_en": "Chicken in Coconut Curry",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 185, "protein": 15.0, "lemak": 12.0, "karbohidrat": 4.5, "serat": 0.5, "kalsium": 20, "zat_besi": 1.2, "vitamin_a": 15, "vitamin_c": 2 }
+  },
+  "semur_daging": {
+    "nama": "Semur Daging",
+    "nama_en": "Beef Stew in Sweet Soy",
+    "kategori": "protein_hewani",
+    "per_100g": { "energi": 175, "protein": 20.0, "lemak": 8.0, "karbohidrat": 5.5, "serat": 0.5, "kalsium": 15, "zat_besi": 2.0, "vitamin_a": 10, "vitamin_c": 2 }
+  }
+}
