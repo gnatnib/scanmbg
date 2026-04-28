@@ -1,18 +1,17 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Camera from "@/components/Camera";
-import ImageUploader from "@/components/ImageUploader";
 import ManualInput from "@/components/ManualInput";
+import { compressImage } from "@/lib/image-utils";
 import {
-  Camera as CameraIcon, Image as ImageIcon, PenLine,
+  Camera as CameraIcon, ImagePlus, PenLine,
   ScanLine, AlertCircle, ShieldCheck, Users, Banknote,
-  ArrowRight, Utensils, BarChart3, Receipt, Eye, Sparkles,
-  ChefHat, Target, TrendingUp,
+  Utensils, BarChart3, Eye, Sparkles, ChefHat, Target, X, Check, ChevronRight, Clock
 } from "lucide-react";
 
 /* ── Animated counter ────────────────────────────────── */
@@ -41,11 +40,35 @@ const ANALYSIS_STEPS = [
 
 export default function HomePage() {
   const router = useRouter();
-  const [mode, setMode] = useState("upload");
+  const fileInputRef = useRef(null);
+
+  // States: "home", "camera", "manual", "preview"
+  const [viewState, setViewState] = useState("home");
   const [capturedImage, setCapturedImage] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisStep, setAnalysisStep] = useState(0);
   const [error, setError] = useState(null);
+  const [recentScans, setRecentScans] = useState([]);
+
+  // Load recent scans
+  useEffect(() => {
+    const scans = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key && key.startsWith("scan_") && !key.startsWith("scan_image_")) {
+        try {
+          const data = JSON.parse(sessionStorage.getItem(key));
+          if (data && data.id) {
+            const image = sessionStorage.getItem(`scan_image_${data.id}`);
+            scans.push({ ...data, image });
+          }
+        } catch (e) {}
+      }
+    }
+    // Reverse to get the latest (rough approximation without timestamp)
+    scans.reverse();
+    setRecentScans(scans.slice(0, 3));
+  }, [viewState]);
 
   // Auto-advance step during analysis
   useEffect(() => {
@@ -58,12 +81,20 @@ export default function HomePage() {
 
   const handleCapture = useCallback((imageData) => {
     setCapturedImage(imageData);
-    setMode("upload");
+    setViewState("preview");
   }, []);
 
-  const handleImageSelect = useCallback((imageData) => {
-    setCapturedImage(imageData);
-  }, []);
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith("image/")) return;
+    try {
+      const compressed = await compressImage(file, 1200, 0.85);
+      setCapturedImage(compressed);
+      setViewState("preview");
+    } catch (err) {
+      setError("Gagal memproses gambar.");
+    }
+  };
 
   const handleAnalyze = async () => {
     if (!capturedImage) return;
@@ -89,8 +120,7 @@ export default function HomePage() {
       router.push(`/result/${data.id}`);
     } catch (err) {
       setError(err.message);
-    } finally {
-      setIsAnalyzing(false);
+      setIsAnalyzing(false); // Let them try again
     }
   };
 
@@ -111,110 +141,42 @@ export default function HomePage() {
       router.push(`/result/${data.id}`);
     } catch (err) {
       setError(err.message);
-    } finally {
       setIsAnalyzing(false);
     }
   };
 
-  const resetScan = () => {
+  const resetToHome = () => {
     setCapturedImage(null);
     setError(null);
+    setViewState("home");
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
-
-  const modes = [
-    { key: "upload", label: "Foto", icon: ImageIcon },
-    { key: "camera", label: "Kamera", icon: CameraIcon },
-    { key: "manual", label: "Manual", icon: PenLine },
-  ];
 
   return (
     <>
-      <Header />
-      <main className="min-h-screen px-4 pb-8">
+      <Header hideScanButton />
+      <main className="min-h-screen px-4 pb-12 pt-6 bg-gradient-to-br from-[#E8F8EE] via-white to-[#F0FDF4]">
         <div className="mx-auto max-w-lg">
 
-          {/* ── Hero section ─────────────────────────── */}
-          {!capturedImage && !isAnalyzing && (
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="pt-8 pb-6"
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <ShieldCheck className="h-4 w-4 text-primary" />
-                </div>
-                <span className="text-[11px] font-semibold text-primary tracking-wide uppercase">
-                  Transparansi Gizi MBG
-                </span>
-              </div>
-              <h1 className="text-[26px] font-extrabold text-text leading-[1.15] mb-2">
-                Cek Gizi Menu{" "}
-                <span className="text-primary">Makan Bergizi Gratis</span>
-              </h1>
-              <p className="text-[13px] text-text-secondary leading-relaxed">
-                Scan foto baki atau input menu manual — AI menganalisis nutrisi, harga bahan, dan kesesuaian standar Kemenkes secara detail.
-              </p>
+          {/* ──── Hidden File Input for Gallery ──── */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleFileChange}
+            className="hidden"
+          />
 
-              {/* Stats row */}
-              <div className="grid grid-cols-3 gap-2 mt-5">
-                {[
-                  { value: 82, suffix: " jt", label: "Anak penerima", icon: Users },
-                  { value: 15, suffix: "rb", label: "Budget/porsi", icon: Banknote },
-                  { value: 600, suffix: "", label: "Target kcal", icon: Target },
-                ].map((stat, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 + i * 0.08 }}
-                    className="card-flat rounded-2xl p-3 text-center"
-                  >
-                    <stat.icon className="h-4 w-4 text-primary mx-auto mb-1.5" />
-                    <span className="text-[16px] font-bold text-text block tabular-nums">
-                      <AnimatedCounter target={stat.value} suffix={stat.suffix} />
-                    </span>
-                    <span className="text-[10px] text-text-tertiary">{stat.label}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          {/* ── Mode tabs ────────────────────────────── */}
-          {!isAnalyzing && !capturedImage && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="mb-4 flex gap-1 rounded-2xl bg-bg-subtle p-1"
-            >
-              {modes.map((m) => (
-                <button
-                  key={m.key}
-                  onClick={() => { setMode(m.key); setError(null); }}
-                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12px] font-semibold transition-all ${
-                    mode === m.key
-                      ? "bg-white text-primary shadow-sm"
-                      : "text-text-tertiary hover:text-text-secondary"
-                  }`}
-                >
-                  <m.icon className="h-3.5 w-3.5" />
-                  {m.label}
-                </button>
-              ))}
-            </motion.div>
-          )}
-
-          {/* ── Content area ──────────────────────────── */}
           <AnimatePresence mode="wait">
+            
+            {/* ──── STATE: ANALYZING ──── */}
             {isAnalyzing ? (
-              /* ── Multi-step analysis animation ── */
               <motion.div
                 key="analyzing"
                 initial={{ opacity: 0, scale: 0.97 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.97 }}
-                className="card p-6"
+                className="card p-6 mt-10"
               >
                 {/* Progress bar */}
                 <div className="relative h-1 rounded-full bg-bg-subtle mb-6 overflow-hidden">
@@ -249,11 +211,7 @@ export default function HomePage() {
                       >
                         <div
                           className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
-                            isActive
-                              ? "bg-primary/15"
-                              : isDone
-                              ? "bg-primary/10"
-                              : "bg-bg-subtle"
+                            isActive ? "bg-primary/15" : isDone ? "bg-primary/10" : "bg-bg-subtle"
                           }`}
                         >
                           {isDone ? (
@@ -270,11 +228,9 @@ export default function HomePage() {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p
-                            className={`text-[13px] font-medium ${
-                              isActive ? "text-primary" : isDone ? "text-text" : "text-text-tertiary"
-                            }`}
-                          >
+                          <p className={`text-[13px] font-medium ${
+                            isActive ? "text-primary" : isDone ? "text-text" : "text-text-tertiary"
+                          }`}>
                             {isDone ? step.label.replace("…", " ✓") : step.label}
                           </p>
                           <p className="text-[10px] text-text-tertiary">{step.sublabel}</p>
@@ -283,113 +239,223 @@ export default function HomePage() {
                     );
                   })}
                 </div>
-
                 <p className="text-center text-[11px] text-text-tertiary mt-4">
                   Estimasi waktu: 10–30 detik
                 </p>
               </motion.div>
-            ) : mode === "camera" ? (
-              <motion.div key="camera" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <Camera onCapture={handleCapture} onClose={() => setMode("upload")} />
+
+            /* ──── STATE: CAMERA ──── */
+            ) : viewState === "camera" ? (
+              <motion.div key="camera" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}>
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-[18px] font-bold text-text">Ambil Foto MBG</h2>
+                  <button onClick={resetToHome} className="flex h-8 w-8 items-center justify-center rounded-full bg-bg-subtle text-text-tertiary hover:bg-bg-muted transition-colors">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <Camera onCapture={handleCapture} onClose={resetToHome} />
               </motion.div>
-            ) : mode === "manual" ? (
-              <motion.div key="manual" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+
+            /* ──── STATE: MANUAL INPUT ──── */
+            ) : viewState === "manual" ? (
+              <motion.div key="manual" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}>
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-[18px] font-bold text-text">Input Manual</h2>
+                  <button onClick={resetToHome} className="flex h-8 w-8 items-center justify-center rounded-full bg-bg-subtle text-text-tertiary hover:bg-bg-muted transition-colors">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
                 <ManualInput onSubmit={handleManualSubmit} />
               </motion.div>
+
+            /* ──── STATE: IMAGE PREVIEW ──── */
+            ) : viewState === "preview" && capturedImage ? (
+              <motion.div key="preview" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}>
+                <div className="relative overflow-hidden rounded-3xl bg-white shadow-sm border border-border-light">
+                  <img
+                    src={capturedImage.dataUrl}
+                    alt="Preview MBG"
+                    className="w-full object-cover"
+                    style={{ maxHeight: "60vh" }}
+                  />
+                  <div className="absolute top-4 right-4 flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 backdrop-blur-md shadow-sm">
+                    <Check className="h-3.5 w-3.5 text-primary" />
+                    <span className="text-[12px] font-bold text-primary">Siap dianalisis</span>
+                  </div>
+                </div>
+
+                <div className="mt-5 space-y-3">
+                  <button
+                    onClick={handleAnalyze}
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 text-[15px] font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-dark active:scale-[0.98]"
+                  >
+                    <ScanLine className="h-5 w-5" />
+                    Analisis Gizi & Harga
+                  </button>
+                  <button onClick={resetToHome} className="w-full py-3 text-[13px] font-semibold text-text-secondary hover:bg-bg-subtle rounded-xl transition-colors">
+                    Batalkan / Ganti Foto
+                  </button>
+                </div>
+              </motion.div>
+
+            /* ──── STATE: HOME DASHBOARD ──── */
             ) : (
-              <motion.div key="upload" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <ImageUploader 
-                  initialImage={capturedImage}
-                  onImageSelect={handleImageSelect} 
-                  onClear={() => setCapturedImage(null)}
-                />
+              <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -10 }}>
+                {/* Dashboard Greeting */}
+                <div className="mb-8 mt-2">
+                  <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
+                    <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 mb-4">
+                      <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                      <span className="text-[10px] font-bold text-primary uppercase tracking-wider">Makan Bergizi Gratis</span>
+                    </div>
+                    <h1 className="text-[32px] font-extrabold text-text leading-[1.15] tracking-tight">
+                      Halo! 👋<br/>
+                      <span className="text-text-secondary font-medium text-[26px]">Mau cek gizi apa hari ini?</span>
+                    </h1>
+                  </motion.div>
+                </div>
+
+                {/* Primary Action Grid */}
+                <div className="mb-8">
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    {/* Kamera Card */}
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => { setViewState("camera"); setError(null); }}
+                      className="flex flex-col items-start gap-4 rounded-3xl bg-primary p-5 shadow-lg shadow-primary/25 transition-shadow"
+                    >
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-white backdrop-blur-sm">
+                        <CameraIcon className="h-6 w-6" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="text-[16px] font-bold text-white">Kamera</h3>
+                        <p className="text-[12px] text-white/80 font-medium mt-0.5">Ambil foto tray MBG</p>
+                      </div>
+                    </motion.button>
+
+                    {/* Galeri Card */}
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => { fileInputRef.current?.click(); setError(null); }}
+                      className="flex flex-col items-start gap-4 rounded-3xl bg-white border border-border-light p-5 shadow-sm transition-shadow"
+                    >
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-bg-subtle text-text-secondary">
+                        <ImagePlus className="h-6 w-6" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="text-[16px] font-bold text-text">Galeri</h3>
+                        <p className="text-[12px] text-text-tertiary font-medium mt-0.5">Pilih dari Galeri</p>
+                      </div>
+                    </motion.button>
+                  </div>
+
+                  {/* Manual Card */}
+                  <motion.button
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => { setViewState("manual"); setError(null); }}
+                    className="flex w-full items-center gap-4 rounded-3xl bg-white border border-border-light p-5 shadow-sm transition-shadow"
+                  >
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-bg-subtle text-text-secondary shrink-0">
+                      <PenLine className="h-6 w-6" />
+                    </div>
+                    <div className="text-left flex-1">
+                      <h3 className="text-[16px] font-bold text-text">Input Manual</h3>
+                      <p className="text-[12px] text-text-tertiary font-medium mt-0.5">Ketik nama makanan secara langsung</p>
+                    </div>
+                  </motion.button>
+                </div>
+
+                {/* Info / Stats Banner */}
+                <div className="mb-6 rounded-3xl bg-[#F0FDF4] p-5 border border-[#DCFCE7]">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Sparkles className="h-5 w-5 text-[#16A34A]" />
+                    <h3 className="text-[14px] font-bold text-[#16582B]">Target Nasional MBG</h3>
+                  </div>
+                  <div className="flex divide-x divide-[#BBF7D0]">
+                    <div className="flex-1 pr-2">
+                      <p className="text-[20px] font-extrabold text-[#166534]"><AnimatedCounter target={82} suffix=" jt" /></p>
+                      <p className="text-[10px] font-medium text-[#166534]/70 uppercase tracking-wide mt-1">Anak Penerima</p>
+                    </div>
+                    <div className="flex-1 px-4">
+                      <p className="text-[20px] font-extrabold text-[#166534]"><AnimatedCounter target={15} suffix="rb" /></p>
+                      <p className="text-[10px] font-medium text-[#166534]/70 uppercase tracking-wide mt-1">Budget/porsi</p>
+                    </div>
+                    <div className="flex-1 pl-4">
+                      <p className="text-[20px] font-extrabold text-[#166534]"><AnimatedCounter target={600} suffix="+" /></p>
+                      <p className="text-[10px] font-medium text-[#166534]/70 uppercase tracking-wide mt-1">Target Kcal</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recent Scans Section */}
+                <div className="mt-8">
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-text-tertiary" />
+                      <h3 className="text-[15px] font-bold text-text">Baru Saja di-Scan</h3>
+                    </div>
+                  </div>
+
+                  {recentScans.length > 0 ? (
+                    <div className="space-y-3">
+                      {recentScans.map(scan => (
+                        <div key={scan.id} onClick={() => router.push(`/result/${scan.id}`)} className="flex items-center gap-4 rounded-3xl bg-white border border-border-light p-3 shadow-sm hover:shadow-md active:scale-[0.98] transition-all cursor-pointer">
+                          <div className="h-14 w-14 rounded-2xl bg-bg-subtle overflow-hidden shrink-0 border border-border-light/50">
+                             {scan.image ? (
+                               <img src={scan.image} alt="Thumbnail Scan" className="h-full w-full object-cover" />
+                             ) : (
+                               <div className="flex h-full w-full items-center justify-center text-text-tertiary">
+                                 <Utensils className="h-5 w-5" />
+                               </div>
+                             )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-[14px] font-bold text-text truncate">
+                              {scan.timestamp 
+                                ? new Date(scan.timestamp).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).replace(/\./g, ':') 
+                                : scan.foodName || scan.manualItems?.map(i => i.name).join(", ") || "Menu Makanan"
+                              }
+                            </h4>
+                            <div className="flex items-center gap-2 mt-1">
+                               <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+                                 <Sparkles className="h-3 w-3" />
+                                 Skor {Number(scan.mbgScore?.score || 0).toFixed(1)}
+                               </span>
+                               <span className="text-[10px] text-text-tertiary">·</span>
+                               <span className="text-[11px] font-medium text-text-secondary">{Math.round(scan.totals?.energi || 0)} kcal</span>
+                            </div>
+                          </div>
+                          <ChevronRight className="h-4 w-4 text-text-tertiary mr-2 shrink-0" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                     <div className="card-flat p-6 text-center border-dashed border-2 border-border-light bg-white/50">
+                        <Utensils className="h-8 w-8 text-text-tertiary mx-auto mb-2 opacity-40" />
+                        <p className="text-[12px] text-text-secondary font-medium">Belum ada menu yang di-scan</p>
+                        <p className="text-[11px] text-text-tertiary mt-1">Riwayat gizi kamu akan muncul di sini</p>
+                     </div>
+                  )}
+                </div>
+
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Error */}
-          {error && (
+          {/* Error Message */}
+          {error && viewState !== "home" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 flex items-start gap-2.5 rounded-2xl bg-danger-light p-4">
               <AlertCircle className="h-4 w-4 text-danger mt-0.5 shrink-0" />
               <div>
                 <p className="text-[12px] font-medium text-danger">{error}</p>
-                <button onClick={resetScan} className="mt-1 text-[11px] text-danger/70 underline">Coba lagi</button>
+                <button onClick={() => setError(null)} className="mt-1 text-[11px] text-danger/70 underline">Tutup</button>
               </div>
             </motion.div>
           )}
 
-          {/* Analyze button (photo mode) */}
-          {capturedImage && !isAnalyzing && mode !== "manual" && (
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-5 space-y-2">
-              <button
-                onClick={handleAnalyze}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 text-[14px] font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary-dark active:scale-[0.98]"
-              >
-                <ScanLine className="h-5 w-5" />
-                Analisis Gizi & Harga
-              </button>
-              <button onClick={resetScan} className="w-full py-2 text-[12px] text-text-tertiary hover:text-text-secondary transition-colors">
-                Ganti foto
-              </button>
-            </motion.div>
-          )}
-
-          {/* ── How it works section ──────────────── */}
-          {!capturedImage && !isAnalyzing && mode !== "manual" && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="mt-8 space-y-4"
-            >
-              {/* How it works */}
-              <div className="card p-5">
-                <h3 className="text-[13px] font-bold text-text mb-4">Cara Kerja</h3>
-                <div className="space-y-3">
-                  {[
-                    { step: "1", icon: CameraIcon, title: "Foto atau Input", desc: "Ambil foto baki MBG atau input menu secara manual" },
-                    { step: "2", icon: Sparkles, title: "AI Analisis", desc: "Gemini + Qwen deteksi makanan, hitung nutrisi & harga" },
-                    { step: "3", icon: BarChart3, title: "Hasil Lengkap", desc: "Skor gizi, estimasi harga, dan rekomendasi perbaikan" },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-xl bg-primary/8 flex items-center justify-center shrink-0 mt-0.5">
-                        <span className="text-[12px] font-bold text-primary">{item.step}</span>
-                      </div>
-                      <div>
-                        <p className="text-[12px] font-semibold text-text">{item.title}</p>
-                        <p className="text-[11px] text-text-tertiary leading-relaxed">{item.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Tips */}
-              <div className="card-flat p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <CameraIcon className="h-3.5 w-3.5 text-primary" />
-                  <p className="text-[12px] font-semibold text-text">Tips foto terbaik</p>
-                </div>
-                <ul className="space-y-1 text-[11px] text-text-secondary">
-                  <li>• Foto dari atas agar semua makanan terlihat</li>
-                  <li>• Pencahayaan cukup, tidak buram</li>
-                  <li>• Seluruh baki masuk dalam frame</li>
-                </ul>
-              </div>
-
-              {/* Context info */}
-              <div className="card-flat p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <ChefHat className="h-3.5 w-3.5 text-warning" />
-                  <p className="text-[12px] font-semibold text-text">Menu sulit dideteksi?</p>
-                </div>
-                <p className="text-[11px] text-text-secondary leading-relaxed">
-                  Beberapa makanan Indonesia sulit diidentifikasi AI dari foto (tempe orek, perkedel, dll).
-                  Gunakan tab <b className="text-text">Manual</b> — ketik nama makanan apapun dan AI akan estimasi nutrisinya.
-                </p>
-              </div>
-            </motion.div>
-          )}
         </div>
       </main>
       <Footer />

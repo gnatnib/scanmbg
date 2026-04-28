@@ -33,7 +33,7 @@ function ScanMBGLogo({ size = 32 }) {
   );
 }
 
-export default function Header() {
+export default function Header({ hideScanButton = false }) {
   const [showAbout, setShowAbout] = useState(false);
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
@@ -66,12 +66,14 @@ export default function Header() {
             >
               <Info className="h-4 w-4" />
             </button>
-            <Link
-              href="/"
-              className="rounded-full bg-primary px-4 py-2 text-[13px] font-semibold text-white transition-all hover:bg-primary-dark active:scale-95"
-            >
-              Scan
-            </Link>
+            {!hideScanButton && (
+              <Link
+                href="/"
+                className="rounded-full bg-primary px-4 py-2 text-[13px] font-semibold text-white transition-all hover:bg-primary-dark active:scale-95"
+              >
+                Scan
+              </Link>
+            )}
           </div>
         </nav>
       </motion.header>
