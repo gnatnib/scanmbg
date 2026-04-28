@@ -392,11 +392,8 @@ export default function HomePage() {
                       {recentScans.map((scan, i) => (
                         <motion.div 
                           key={scan.id} 
-                          initial={{ opacity: 0, x: -15 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.4, delay: 0.4 + (i * 0.1), ease: "easeOut" }}
                           onClick={() => router.push(`/result/${scan.id}`)} 
-                          className="flex items-center gap-4 rounded-3xl bg-white border border-border-light p-3 shadow-sm hover:shadow-md active:scale-[0.98] transition-all cursor-pointer"
+                          className="w-full flex items-center gap-4 rounded-3xl bg-white border border-border-light p-3 shadow-sm hover:shadow-md active:scale-[0.98] transition-all cursor-pointer"
                         >
                           <div className="h-14 w-14 rounded-2xl bg-bg-subtle overflow-hidden shrink-0 border border-border-light/50">
                              {scan.image ? (

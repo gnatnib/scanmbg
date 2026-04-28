@@ -19,7 +19,21 @@ export async function POST(request) {
       );
     }
 
-    const aiAnalysis = await analyzeWithOllama(items, totals, mbgScore);
+    let aiAnalysis;
+    try {
+      // 1. Coba pakai Gemini Text (Sangat cepat ~1-2 detik)
+      const { analyzeExplanationWithGemini } = await import("@/lib/gemini");
+      aiAnalysis = await analyzeExplanationWithGemini(items, totals, mbgScore);
+    } catch (geminiErr) {
+      console.log("Gemini text explanation failed, falling back to Ollama...", geminiErr.message);
+      // 2. Jika Gemini gagal (misal limit 429), fallback ke Ollama (bisa butuh 10-30 detik)
+      try {
+        aiAnalysis = await analyzeWithOllama(items, totals, mbgScore);
+      } catch (ollamaErr) {
+        console.error("Ollama explanation fallback failed:", ollamaErr.message);
+        throw new Error("Kedua AI (Gemini & Ollama) gagal merespons");
+      }
+    }
 
     return NextResponse.json({
       penjelasan_skor: aiAnalysis?.penjelasan_skor || "",
