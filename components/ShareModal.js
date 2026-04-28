@@ -416,12 +416,32 @@ export default function ShareModal({ result, imageUrl, isOpen, onClose }) {
   };
 
   const shareWhatsApp = async () => {
-    // Only redirect directly to WhatsApp with the text message
+    // Try Web Share API first (works well on mobile — image+text together)
+    if (blobRef.current && navigator.share) {
+      const file = new File([blobRef.current], "scanmbg-hasil.png", { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], text: detailedText });
+          return;
+        } catch { /* user cancelled or failed, fall through */ }
+      }
+    }
+    // Fallback: open WhatsApp with text (user can attach downloaded image)
+    downloadEmbed();
     window.open(`https://wa.me/?text=${encodeURIComponent(detailedText)}`, "_blank");
   };
 
   const shareX = async () => {
     const xText = `🍱 Score Menu MBG-ku: ${score}/10 (${grade}) | ${totalKalori} kcal | P:${totalProtein}g L:${totalLemak}g K:${totalKarbo}g\n\nCek gizi MBG kamu juga!`;
+    if (blobRef.current && navigator.share) {
+      const file = new File([blobRef.current], "scanmbg-hasil.png", { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], text: xText });
+          return;
+        } catch { /* fall through */ }
+      }
+    }
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(xText)}&url=${encodeURIComponent(siteUrl)}`, "_blank");
   };
 
