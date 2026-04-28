@@ -129,7 +129,7 @@ export default function Header() {
                     Google Gemini Flash
                   </span>
                   <span className="rounded-full bg-white px-2.5 py-1 text-text-secondary font-medium shadow-sm">
-                    Kimi 2.6
+                    Qwen 3.5
                   </span>
                   <span className="rounded-full bg-white px-2.5 py-1 text-text-secondary font-medium shadow-sm">
                     TKPI Database

@@ -298,7 +298,11 @@ export default function HomePage() {
               </motion.div>
             ) : (
               <motion.div key="upload" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <ImageUploader onImageSelect={handleImageSelect} />
+                <ImageUploader 
+                  initialImage={capturedImage}
+                  onImageSelect={handleImageSelect} 
+                  onClear={() => setCapturedImage(null)}
+                />
               </motion.div>
             )}
           </AnimatePresence>

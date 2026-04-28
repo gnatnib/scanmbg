@@ -11,6 +11,7 @@ export default function Camera({ onCapture, onClose }) {
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState(null);
   const [facingMode, setFacingMode] = useState("environment");
+  const [isFlipping, setIsFlipping] = useState(false);
 
   const startCamera = useCallback(async (facing) => {
     try {
@@ -34,6 +35,16 @@ export default function Camera({ onCapture, onClose }) {
     startCamera(facingMode);
     return () => { if (stream) stream.getTracks().forEach((t) => t.stop()); };
   }, [facingMode]);
+
+  const handleFlip = () => {
+    setIsFlipping(true);
+    setTimeout(() => {
+      setFacingMode((p) => (p === "environment" ? "user" : "environment"));
+    }, 150);
+    setTimeout(() => {
+      setIsFlipping(false);
+    }, 400); // 400ms is enough to finish the visual flip
+  };
 
   const capturePhoto = () => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -76,8 +87,18 @@ export default function Camera({ onCapture, onClose }) {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full overflow-hidden rounded-3xl bg-black">
-      <video ref={videoRef} autoPlay playsInline muted className="w-full object-cover" style={{ maxHeight: "65vh" }} />
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full aspect-[4/5] sm:aspect-video overflow-hidden rounded-3xl bg-black flex items-center justify-center">
+      <motion.video 
+        ref={videoRef} 
+        autoPlay playsInline muted 
+        className="absolute inset-0 h-full w-full object-cover" 
+        animate={{ 
+          rotateY: isFlipping ? 90 : 0,
+          scale: isFlipping ? 0.8 : 1,
+          opacity: isFlipping ? 0.3 : 1
+        }}
+        transition={{ duration: 0.2 }}
+      />
       <canvas ref={canvasRef} className="hidden" />
 
       {/* Viewfinder corners */}
@@ -112,8 +133,8 @@ export default function Camera({ onCapture, onClose }) {
           <div className="h-14 w-14 rounded-full bg-white group-hover:scale-95 transition-transform" />
         </button>
 
-        <button onClick={() => setFacingMode((p) => p === "environment" ? "user" : "environment")}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm">
+        <button onClick={handleFlip} disabled={isFlipping}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm disabled:opacity-50">
           <SwitchCamera className="h-5 w-5" />
         </button>
       </div>

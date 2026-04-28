@@ -1,13 +1,22 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, ImagePlus, X, Check } from "lucide-react";
 
-export default function ImageUploader({ onImageSelect }) {
+export default function ImageUploader({ initialImage, onImageSelect, onClear }) {
   const [isDragging, setIsDragging] = useState(false);
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState(initialImage?.dataUrl || null);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (initialImage?.dataUrl) {
+      setPreview(initialImage.dataUrl);
+    } else {
+      setPreview(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }, [initialImage]);
 
   const processFile = useCallback(
     async (file) => {
@@ -35,6 +44,7 @@ export default function ImageUploader({ onImageSelect }) {
   const clearPreview = () => {
     setPreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    if (onClear) onClear();
   };
 
   return (
@@ -107,7 +117,6 @@ export default function ImageUploader({ onImageSelect }) {
               accept="image/jpeg,image/png,image/webp"
               onChange={handleFileInput}
               className="hidden"
-              capture="environment"
             />
           </motion.div>
         )}
