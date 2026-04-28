@@ -303,7 +303,7 @@ export default function HomePage() {
               <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -10 }}>
                 {/* Dashboard Greeting */}
                 <div className="mb-8 mt-2">
-                  <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
+                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }}>
                     <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 mb-4">
                       <ShieldCheck className="h-3.5 w-3.5 text-primary" />
                       <span className="text-[10px] font-bold text-primary uppercase tracking-wider">Makan Bergizi Gratis</span>
@@ -316,7 +316,12 @@ export default function HomePage() {
                 </div>
 
                 {/* Primary Action Grid */}
-                <div className="mb-8">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }} 
+                  animate={{ opacity: 1, y: 0 }} 
+                  transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+                  className="mb-8"
+                >
                   <div className="grid grid-cols-2 gap-3 mb-3">
                     {/* Kamera Card */}
                     <motion.button
@@ -353,8 +358,8 @@ export default function HomePage() {
 
                   {/* Manual Card */}
                   <motion.button
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => { setViewState("manual"); setError(null); }}
                     className="flex w-full items-center gap-4 rounded-3xl bg-white border border-border-light p-5 shadow-sm transition-shadow"
                   >
@@ -366,32 +371,16 @@ export default function HomePage() {
                       <p className="text-[12px] text-text-tertiary font-medium mt-0.5">Ketik nama makanan secara langsung</p>
                     </div>
                   </motion.button>
-                </div>
+                </motion.div>
 
-                {/* Info / Stats Banner */}
-                <div className="mb-6 rounded-3xl bg-[#F0FDF4] p-5 border border-[#DCFCE7]">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Sparkles className="h-5 w-5 text-[#16A34A]" />
-                    <h3 className="text-[14px] font-bold text-[#16582B]">Target Nasional MBG</h3>
-                  </div>
-                  <div className="flex divide-x divide-[#BBF7D0]">
-                    <div className="flex-1 pr-2">
-                      <p className="text-[20px] font-extrabold text-[#166534]"><AnimatedCounter target={82} suffix=" jt" /></p>
-                      <p className="text-[10px] font-medium text-[#166534]/70 uppercase tracking-wide mt-1">Anak Penerima</p>
-                    </div>
-                    <div className="flex-1 px-4">
-                      <p className="text-[20px] font-extrabold text-[#166534]"><AnimatedCounter target={15} suffix="rb" /></p>
-                      <p className="text-[10px] font-medium text-[#166534]/70 uppercase tracking-wide mt-1">Budget/porsi</p>
-                    </div>
-                    <div className="flex-1 pl-4">
-                      <p className="text-[20px] font-extrabold text-[#166534]"><AnimatedCounter target={600} suffix="+" /></p>
-                      <p className="text-[10px] font-medium text-[#166534]/70 uppercase tracking-wide mt-1">Target Kcal</p>
-                    </div>
-                  </div>
-                </div>
 
                 {/* Recent Scans Section */}
-                <div className="mt-8">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }} 
+                  animate={{ opacity: 1, y: 0 }} 
+                  transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
+                  className="mt-8"
+                >
                   <div className="flex justify-between items-center mb-4">
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-text-tertiary" />
@@ -401,8 +390,15 @@ export default function HomePage() {
 
                   {recentScans.length > 0 ? (
                     <div className="space-y-3">
-                      {recentScans.map(scan => (
-                        <div key={scan.id} onClick={() => router.push(`/result/${scan.id}`)} className="flex items-center gap-4 rounded-3xl bg-white border border-border-light p-3 shadow-sm hover:shadow-md active:scale-[0.98] transition-all cursor-pointer">
+                      {recentScans.map((scan, i) => (
+                        <motion.div 
+                          key={scan.id} 
+                          initial={{ opacity: 0, x: -15 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: 0.4 + (i * 0.1), ease: "easeOut" }}
+                          onClick={() => router.push(`/result/${scan.id}`)} 
+                          className="flex items-center gap-4 rounded-3xl bg-white border border-border-light p-3 shadow-sm hover:shadow-md active:scale-[0.98] transition-all cursor-pointer"
+                        >
                           <div className="h-14 w-14 rounded-2xl bg-bg-subtle overflow-hidden shrink-0 border border-border-light/50">
                              {scan.image ? (
                                <img src={scan.image} alt="Thumbnail Scan" className="h-full w-full object-cover" />
@@ -429,7 +425,7 @@ export default function HomePage() {
                             </div>
                           </div>
                           <ChevronRight className="h-4 w-4 text-text-tertiary mr-2 shrink-0" />
-                        </div>
+                        </motion.div>
                       ))}
                     </div>
                   ) : (
@@ -439,7 +435,7 @@ export default function HomePage() {
                         <p className="text-[11px] text-text-tertiary mt-1">Riwayat gizi kamu akan muncul di sini</p>
                      </div>
                   )}
-                </div>
+                </motion.div>
 
               </motion.div>
             )}
