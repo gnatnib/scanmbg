@@ -36,7 +36,9 @@ function strokeRR(ctx, x, y, w, h, r, color, lw = 1) {
 function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = "anonymous";
+    if (!src.startsWith("data:")) {
+      img.crossOrigin = "anonymous";
+    }
     img.onload = () => resolve(img);
     img.onerror = reject;
     img.src = src;

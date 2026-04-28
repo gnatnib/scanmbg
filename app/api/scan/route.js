@@ -74,26 +74,32 @@ export async function POST(request) {
         geminiResult = await analyzeFoodTray(image, mimeType || "image/jpeg");
       } catch (geminiErr) {
         const errMsg = geminiErr.message || "";
-        const isRateLimit = errMsg.includes("429") || errMsg.includes("quota") || errMsg.includes("Too Many Requests");
+        const isRateLimit = errMsg.includes("429") || errMsg.includes("quota") || errMsg.includes("Too Many Requests") || errMsg.includes("RESOURCE_EXHAUSTED");
         const isUnavailable = errMsg.includes("503") || errMsg.includes("Service Unavailable");
+        const isTimeout = errMsg.includes("timeout") || errMsg.includes("DEADLINE_EXCEEDED");
 
-        if (isRateLimit || isUnavailable) {
+        if (isRateLimit || isUnavailable || isTimeout) {
           // ── Fallback to Qwen vision ──
-          console.log(`Gemini ${isRateLimit ? "429" : "503"} — falling back to Qwen vision...`);
+          console.log(`Gemini failed (${errMsg.substring(0, 100)}) — falling back to Qwen vision...`);
           try {
             geminiResult = await analyzeFoodTrayWithQwen(image, mimeType || "image/jpeg");
             visionSource = "qwen";
           } catch (qwenErr) {
             console.error("Qwen vision fallback also failed:", qwenErr.message);
+            const qwenMsg = qwenErr.message || "";
+            const isQwenTimeout = qwenMsg.includes("timeout") || qwenMsg.includes("AbortError");
             return NextResponse.json(
-              { error: isRateLimit
-                ? "Kuota Gemini habis & fallback gagal. Gunakan tab Manual."
-                : "AI vision sedang tidak tersedia. Gunakan tab Manual." },
-              { status: isRateLimit ? 429 : 503 }
+              { error: isQwenTimeout
+                ? "AI sedang sibuk (timeout). Silakan coba lagi dalam beberapa detik."
+                : `AI vision gagal. Silakan coba lagi atau gunakan Input Manual.` },
+              { status: 503 }
             );
           }
         } else {
-          throw geminiErr;
+           return NextResponse.json(
+            { error: "Koneksi ke AI Vision gagal. Silakan coba lagi atau gunakan Input Manual." },
+            { status: 500 }
+          );
         }
       }
 

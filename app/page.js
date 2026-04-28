@@ -373,7 +373,6 @@ export default function HomePage() {
                   </motion.button>
                 </motion.div>
 
-
                 {/* Recent Scans Section */}
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }} 
