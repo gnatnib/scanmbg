@@ -53,13 +53,13 @@ export default function HomePage() {
   // Load recent scans
   useEffect(() => {
     const scans = [];
-    for (let i = 0; i < sessionStorage.length; i++) {
-      const key = sessionStorage.key(i);
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
       if (key && key.startsWith("scan_") && !key.startsWith("scan_image_")) {
         try {
-          const data = JSON.parse(sessionStorage.getItem(key));
+          const data = JSON.parse(localStorage.getItem(key));
           if (data && data.id) {
-            const image = sessionStorage.getItem(`scan_image_${data.id}`);
+            const image = localStorage.getItem(`scan_image_${data.id}`);
             scans.push({ ...data, image });
           }
         } catch (e) {}
@@ -113,9 +113,9 @@ export default function HomePage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Terjadi kesalahan");
 
-      sessionStorage.setItem(`scan_${data.id}`, JSON.stringify(data));
+      localStorage.setItem(`scan_${data.id}`, JSON.stringify(data));
       if (capturedImage.dataUrl) {
-        sessionStorage.setItem(`scan_image_${data.id}`, capturedImage.dataUrl);
+        localStorage.setItem(`scan_image_${data.id}`, capturedImage.dataUrl);
       }
       router.push(`/result/${data.id}`);
     } catch (err) {
@@ -137,7 +137,7 @@ export default function HomePage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Terjadi kesalahan");
 
-      sessionStorage.setItem(`scan_${data.id}`, JSON.stringify(data));
+      localStorage.setItem(`scan_${data.id}`, JSON.stringify(data));
       router.push(`/result/${data.id}`);
     } catch (err) {
       setError(err.message);

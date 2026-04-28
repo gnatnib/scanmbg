@@ -75,14 +75,14 @@ export default function ResultPage() {
   const [aiError, setAiError] = useState(null);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem(`scan_${params.id}`);
+    const stored = localStorage.getItem(`scan_${params.id}`);
     if (stored) {
       const parsed = JSON.parse(stored);
       setResult(parsed);
       // If scan already had AI analysis (e.g. from older pipeline), use it
       if (parsed.aiAnalysis) setAiAnalysis(parsed.aiAnalysis);
     }
-    const img = sessionStorage.getItem(`scan_image_${params.id}`);
+    const img = localStorage.getItem(`scan_image_${params.id}`);
     if (img) setImageUrl(img);
   }, [params.id]);
 
