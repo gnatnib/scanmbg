@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Header from "@/components/Header";
@@ -67,14 +67,54 @@ export default function ResultPage() {
   const [imageUrl, setImageUrl] = useState(null);
   const [shareOpen, setShareOpen] = useState(false);
   const [showDetailCharts, setShowDetailCharts] = useState(false);
-  const [showAiDetail, setShowAiDetail] = useState(true);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  // ── Lazy AI explanation state ──
+  const [aiAnalysis, setAiAnalysis] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState(null);
 
   useEffect(() => {
     const stored = sessionStorage.getItem(`scan_${params.id}`);
-    if (stored) setResult(JSON.parse(stored));
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      setResult(parsed);
+      // If scan already had AI analysis (e.g. from older pipeline), use it
+      if (parsed.aiAnalysis) setAiAnalysis(parsed.aiAnalysis);
+    }
     const img = sessionStorage.getItem(`scan_image_${params.id}`);
     if (img) setImageUrl(img);
   }, [params.id]);
+
+  // ── Lazy-load AI explanation in background ──
+  useEffect(() => {
+    if (!result || aiAnalysis || aiLoading) return;
+    // If result already has aiAnalysis from the scan, skip
+    if (result.aiAnalysis) return;
+
+    setAiLoading(true);
+    fetch("/api/explain", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: result.items,
+        totals: result.totals,
+        mbgScore: result.mbgScore,
+      }),
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error(`${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        setAiAnalysis(data);
+        setAiLoading(false);
+      })
+      .catch(() => {
+        setAiError("AI analisis tidak tersedia saat ini.");
+        setAiLoading(false);
+      });
+  }, [result]);
 
   if (!result) {
     return (
@@ -96,7 +136,7 @@ export default function ResultPage() {
     );
   }
 
-  const { items, totals, mbgScore, deskripsi, catatan, pricing, aiAnalysis } = result;
+  const { items, totals, mbgScore, deskripsi, catatan, pricing } = result;
 
   return (
     <>
@@ -122,8 +162,11 @@ export default function ResultPage() {
           {/* Scanned image + Score card */}
           <motion.div {...fade(0.05)} className="card overflow-hidden mb-4">
             {imageUrl && (
-              <div className="relative">
-                <img src={imageUrl} alt="Baki MBG" className="w-full h-48 object-cover" />
+              <div className="relative cursor-pointer group" onClick={() => setLightboxOpen(true)}>
+                <img src={imageUrl} alt="Baki MBG" className="w-full h-48 object-cover transition-transform group-hover:scale-[1.02]" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                  <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-[11px] font-medium bg-black/50 rounded-full px-3 py-1 backdrop-blur-sm">Klik untuk perbesar</span>
+                </div>
                 <div className="absolute bottom-3 right-3 rounded-2xl bg-white/95 backdrop-blur-sm px-3 py-1.5 shadow-sm">
                   <span className="text-[12px] font-bold" style={{ color: mbgScore.gradeColor }}>
                     ● {mbgScore.score}/10
@@ -151,64 +194,83 @@ export default function ResultPage() {
             </div>
           </motion.div>
 
-          {/* ── AI Analysis Explanation Card ───────── */}
-          {aiAnalysis && (
-            <motion.div {...fade(0.1)} className="card p-5 mb-4">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="h-8 w-8 rounded-xl bg-primary-light flex items-center justify-center">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-[14px] font-bold text-text">Analisis AI</h3>
-                  <p className="text-[10px] text-text-tertiary">Qwen 3.5 AI Analysis</p>
-                </div>
+          {/* ── AI Analysis Explanation Card (lazy-loaded) ───────── */}
+          <motion.div {...fade(0.1)} className="card p-5 mb-4">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="h-8 w-8 rounded-xl bg-primary-light flex items-center justify-center">
+                <Sparkles className="h-4 w-4 text-primary" />
               </div>
+              <div>
+                <h3 className="text-[14px] font-bold text-text">Analisis AI</h3>
+                <p className="text-[10px] text-text-tertiary">
+                  {aiLoading ? "Memuat analisis…" : aiError ? "Tidak tersedia" : "Qwen AI Analysis"}
+                </p>
+              </div>
+            </div>
 
-              {/* Score explanation */}
-              {aiAnalysis.penjelasan_skor && (
-                <div className="mb-4">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <MessageCircle className="h-3.5 w-3.5 text-primary" />
-                    <p className="text-[12px] font-semibold text-text">Penjelasan Skor</p>
-                  </div>
-                  <p className="text-[12px] text-text-secondary leading-relaxed whitespace-pre-line">
-                    {aiAnalysis.penjelasan_skor}
-                  </p>
-                </div>
-              )}
+            {aiLoading && (
+              <div className="space-y-3 animate-pulse">
+                <div className="h-3 bg-bg-muted rounded-full w-full" />
+                <div className="h-3 bg-bg-muted rounded-full w-5/6" />
+                <div className="h-3 bg-bg-muted rounded-full w-4/6" />
+                <div className="h-3 bg-bg-muted rounded-full w-full mt-4" />
+                <div className="h-3 bg-bg-muted rounded-full w-3/4" />
+                <p className="text-[11px] text-text-tertiary mt-2">AI sedang menganalisis menu Anda…</p>
+              </div>
+            )}
 
-              {/* Nutrition explanation */}
-              {aiAnalysis.penjelasan_nutrisi && (
-                <div className="mb-4">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <TrendingUp className="h-3.5 w-3.5 text-info" />
-                    <p className="text-[12px] font-semibold text-text">Detail Nutrisi</p>
-                  </div>
-                  <p className="text-[12px] text-text-secondary leading-relaxed whitespace-pre-line">
-                    {aiAnalysis.penjelasan_nutrisi}
-                  </p>
-                </div>
-              )}
+            {aiError && (
+              <p className="text-[12px] text-text-tertiary">{aiError}</p>
+            )}
 
-              {/* Recommendations */}
-              {aiAnalysis.rekomendasi && aiAnalysis.rekomendasi.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <Lightbulb className="h-3.5 w-3.5 text-warning" />
-                    <p className="text-[12px] font-semibold text-text">Rekomendasi</p>
+            {aiAnalysis && (
+              <>
+                {/* Score explanation */}
+                {aiAnalysis.penjelasan_skor && (
+                  <div className="mb-4">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <MessageCircle className="h-3.5 w-3.5 text-primary" />
+                      <p className="text-[12px] font-semibold text-text">Penjelasan Skor</p>
+                    </div>
+                    <p className="text-[12px] text-text-secondary leading-relaxed whitespace-pre-line">
+                      {aiAnalysis.penjelasan_skor}
+                    </p>
                   </div>
-                  <div className="space-y-1.5">
-                    {aiAnalysis.rekomendasi.map((rec, i) => (
-                      <div key={i} className="flex items-start gap-2 rounded-xl bg-warning-light/50 p-2.5">
-                        <span className="text-[11px] font-bold text-warning mt-0.5">{i + 1}.</span>
-                        <p className="text-[11px] text-text-secondary leading-relaxed">{rec}</p>
-                      </div>
-                    ))}
+                )}
+
+                {/* Nutrition explanation */}
+                {aiAnalysis.penjelasan_nutrisi && (
+                  <div className="mb-4">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <TrendingUp className="h-3.5 w-3.5 text-info" />
+                      <p className="text-[12px] font-semibold text-text">Detail Nutrisi</p>
+                    </div>
+                    <p className="text-[12px] text-text-secondary leading-relaxed whitespace-pre-line">
+                      {aiAnalysis.penjelasan_nutrisi}
+                    </p>
                   </div>
-                </div>
-              )}
-            </motion.div>
-          )}
+                )}
+
+                {/* Recommendations */}
+                {aiAnalysis.rekomendasi && aiAnalysis.rekomendasi.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Lightbulb className="h-3.5 w-3.5 text-warning" />
+                      <p className="text-[12px] font-semibold text-text">Rekomendasi</p>
+                    </div>
+                    <div className="space-y-1.5">
+                      {aiAnalysis.rekomendasi.map((rec, i) => (
+                        <div key={i} className="flex items-start gap-2 rounded-xl bg-warning-light/50 p-2.5">
+                          <span className="text-[11px] font-bold text-warning mt-0.5">{i + 1}.</span>
+                          <p className="text-[11px] text-text-secondary leading-relaxed">{rec}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </motion.div>
 
           {/* Macro summary cards */}
           <motion.div {...fade(0.15)} className="grid grid-cols-3 gap-2.5 mb-4">
@@ -348,7 +410,7 @@ export default function ResultPage() {
                 </div>
                 <div>
                   <h3 className="text-[14px] font-bold text-text">Estimasi Harga</h3>
-                  <p className="text-[10px] text-text-tertiary">Harga bahan mentah pasar tradisional</p>
+                  <p className="text-[10px] text-text-tertiary">Database harga pasar tradisional 2024-2025</p>
                 </div>
               </div>
 
@@ -358,6 +420,7 @@ export default function ResultPage() {
                     <div className="flex-1 min-w-0">
                       <span className="text-text">{pi.nama}</span>
                       <span className="text-text-tertiary ml-1">({pi.gram_digunakan}g)</span>
+                      {pi.sumber_harga && <span className="text-[9px] text-text-tertiary ml-1">· {pi.sumber_harga}</span>}
                     </div>
                     <span className="text-text font-semibold tabular-nums">Rp {pi.harga_porsi?.toLocaleString('id-ID')}</span>
                   </div>
@@ -476,7 +539,34 @@ export default function ResultPage() {
         </div>
       </main>
       <Footer />
-      <ShareModal result={result} isOpen={shareOpen} onClose={() => setShareOpen(false)} />
+      <ShareModal result={result} imageUrl={imageUrl} isOpen={shareOpen} onClose={() => setShareOpen(false)} />
+
+      {/* Image Lightbox */}
+      {lightboxOpen && imageUrl && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-sm cursor-pointer p-4"
+          onClick={() => setLightboxOpen(false)}
+        >
+          <motion.img
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            src={imageUrl}
+            alt="Baki MBG — perbesar"
+            className="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            onClick={() => setLightboxOpen(false)}
+            className="absolute top-6 right-6 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm hover:bg-white/25 transition-colors"
+          >
+            <span className="text-lg">✕</span>
+          </button>
+        </motion.div>
+      )}
     </>
   );
 }

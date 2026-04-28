@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Info, X } from "lucide-react";
@@ -35,6 +35,12 @@ function ScanMBGLogo({ size = 32 }) {
 
 export default function Header() {
   const [showAbout, setShowAbout] = useState(false);
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+
+  useEffect(() => {
+    const year = new Date().getFullYear();
+    setCurrentYear(year);
+  }, []);
 
   return (
     <>
@@ -123,7 +129,7 @@ export default function Header() {
                     Google Gemini Flash
                   </span>
                   <span className="rounded-full bg-white px-2.5 py-1 text-text-secondary font-medium shadow-sm">
-                    Qwen3.5
+                    Kimi 2.6
                   </span>
                   <span className="rounded-full bg-white px-2.5 py-1 text-text-secondary font-medium shadow-sm">
                     TKPI Database
@@ -153,7 +159,7 @@ export default function Header() {
               </div>
 
               <p className="text-center text-[10px] text-text-tertiary mt-4">
-                © 2025 ScanMBG · Tidak terafiliasi dengan pemerintah
+                © {currentYear} ScanMBG · Tidak terafiliasi dengan pemerintah
               </p>
             </motion.div>
           </motion.div>

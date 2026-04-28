@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import { analyzeFoodTray } from "@/lib/gemini";
 import { enrichWithTkpi, calculateTotals, getCategoryBreakdown } from "@/lib/nutrition-db";
 import { calculateMbgScore } from "@/lib/scoring";
-import { analyzeWithOllama, estimateCustomNutrition, analyzeFoodTrayWithQwen } from "@/lib/ollama";
+import { estimateLocalPricing } from "@/lib/pricing-db";
+import { estimateCustomNutrition, analyzeFoodTrayWithQwen } from "@/lib/ollama";
 
-export const maxDuration = 90;
+export const maxDuration = 60;
 
 export async function POST(request) {
   try {
@@ -17,7 +18,6 @@ export async function POST(request) {
 
     if (manualItems && manualItems.length > 0) {
       // ── Manual input mode ──
-      // Separate known TKPI items from custom items
       const customItems = [];
       const knownItems = [];
 
@@ -53,7 +53,6 @@ export async function POST(request) {
           }
         } catch (err) {
           console.error("Ollama custom nutrition error:", err);
-          // Continue — TKPI enrichment may still find matches
         }
       }
 
@@ -61,7 +60,7 @@ export async function POST(request) {
       deskripsi = buildAutoDescription(knownItems);
 
     } else if (image) {
-      // ── Vision scan mode (Gemini) ──
+      // ── Vision scan mode ──
       if (!process.env.GOOGLE_GEMINI_API_KEY) {
         return NextResponse.json(
           { error: "API key belum dikonfigurasi. Tambahkan GOOGLE_GEMINI_API_KEY di .env.local" },
@@ -79,7 +78,7 @@ export async function POST(request) {
         const isUnavailable = errMsg.includes("503") || errMsg.includes("Service Unavailable");
 
         if (isRateLimit || isUnavailable) {
-          // ── Fallback to Qwen 3.5 vision ──
+          // ── Fallback to Qwen vision ──
           console.log(`Gemini ${isRateLimit ? "429" : "503"} — falling back to Qwen vision...`);
           try {
             geminiResult = await analyzeFoodTrayWithQwen(image, mimeType || "image/jpeg");
@@ -88,7 +87,7 @@ export async function POST(request) {
             console.error("Qwen vision fallback also failed:", qwenErr.message);
             return NextResponse.json(
               { error: isRateLimit
-                ? "Kuota Gemini habis & Qwen fallback gagal. Gunakan tab Manual."
+                ? "Kuota Gemini habis & fallback gagal. Gunakan tab Manual."
                 : "AI vision sedang tidak tersedia. Gunakan tab Manual." },
               { status: isRateLimit ? 429 : 503 }
             );
@@ -107,35 +106,25 @@ export async function POST(request) {
 
       geminiItems = geminiResult.items;
       deskripsi = geminiResult.deskripsi_menu || "";
-      catatan = (geminiResult.catatan || "") + (visionSource === "qwen" ? " [Dianalisis oleh Qwen 3.5 — Gemini sedang tidak tersedia]" : "");
+      catatan = (geminiResult.catatan || "") + (visionSource === "qwen" ? " [Dianalisis oleh Qwen — Gemini sedang tidak tersedia]" : "");
     } else {
       return NextResponse.json({ error: "Gambar atau input manual diperlukan" }, { status: 400 });
     }
 
-    // ── Step 2: Enrich with TKPI database ──
+    // ── Step 2: Enrich with TKPI database (instant) ──
     const enrichedItems = enrichWithTkpi(geminiItems);
 
-    // ── Step 3: Calculate totals ──
+    // ── Step 3: Calculate totals (instant) ──
     const totals = calculateTotals(enrichedItems);
 
-    // ── Step 4: Calculate MBG score ──
+    // ── Step 4: Calculate MBG score (instant) ──
     const mbgScore = calculateMbgScore(enrichedItems, totals);
 
-    // ── Step 5: Category breakdown ──
+    // ── Step 5: Category breakdown (instant) ──
     const categoryBreakdown = getCategoryBreakdown(enrichedItems);
 
-    // ── Step 6: Ollama analysis (nutrition explanation + pricing + recommendations) ──
-    let aiAnalysis = null;
-    let pricing = null;
-    try {
-      aiAnalysis = await analyzeWithOllama(enrichedItems, totals, mbgScore);
-      if (aiAnalysis?.pricing) {
-        pricing = aiAnalysis.pricing;
-      }
-    } catch (err) {
-      console.error("Ollama analysis error:", err);
-      // Non-fatal — continue without AI analysis
-    }
+    // ── Step 6: Local pricing estimation (instant — NO AI call) ──
+    const pricing = estimateLocalPricing(enrichedItems);
 
     const scanId = generateScanId();
 
@@ -147,13 +136,7 @@ export async function POST(request) {
       mbgScore,
       categoryBreakdown,
       pricing,
-      aiAnalysis: aiAnalysis
-        ? {
-            penjelasan_skor: aiAnalysis.penjelasan_skor || "",
-            penjelasan_nutrisi: aiAnalysis.penjelasan_nutrisi || "",
-            rekomendasi: aiAnalysis.rekomendasi || [],
-          }
-        : null,
+      aiAnalysis: null, // Loaded lazily by the result page via /api/explain
       deskripsi: deskripsi || buildAutoDescription(enrichedItems),
       catatan: catatan || "",
     };

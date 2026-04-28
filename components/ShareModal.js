@@ -1,220 +1,10 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Share2, MessageCircle, Copy, Check, X, Send, Download, Image as ImageIcon } from "lucide-react";
+import { Share2, MessageCircle, Copy, Check, X, Download } from "lucide-react";
 
-function generateShareCanvas(result) {
-  return new Promise((resolve) => {
-    const canvas = document.createElement("canvas");
-    const w = 600;
-    const h = 780;
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext("2d");
-
-    // Background
-    const bgGrad = ctx.createLinearGradient(0, 0, w, h);
-    bgGrad.addColorStop(0, "#F7F7F5");
-    bgGrad.addColorStop(1, "#E8F5E9");
-    ctx.fillStyle = bgGrad;
-    roundRect(ctx, 0, 0, w, h, 0);
-    ctx.fill();
-
-    // Card background
-    ctx.fillStyle = "#FFFFFF";
-    roundRect(ctx, 24, 24, w - 48, h - 48, 24);
-    ctx.fill();
-    ctx.strokeStyle = "#E8E8E3";
-    ctx.lineWidth = 1;
-    roundRect(ctx, 24, 24, w - 48, h - 48, 24);
-    ctx.stroke();
-
-    const score = result?.mbgScore?.score || 0;
-    const grade = result?.mbgScore?.gradeLabel || "";
-    const gradeColor = result?.mbgScore?.gradeColor || "#2AB05B";
-    const totals = result?.totals || {};
-    const items = result?.items || [];
-    const deskripsi = result?.deskripsi || "Menu MBG";
-
-    // Header branding
-    ctx.fillStyle = "#1A1A1A";
-    ctx.font = "bold 22px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-    ctx.fillText("ScanMBG", 56, 76);
-    ctx.fillStyle = "#9B9B9B";
-    ctx.font = "13px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-    ctx.fillText("Analisis Gizi MBG", 56, 100);
-
-    // Divider
-    ctx.strokeStyle = "#F0F0EC";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(56, 118);
-    ctx.lineTo(w - 56, 118);
-    ctx.stroke();
-
-    // Score circle
-    const cx = w / 2;
-    const cy = 200;
-    const radius = 56;
-
-    // Score ring bg
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = "#F0F0EC";
-    ctx.lineWidth = 8;
-    ctx.stroke();
-
-    // Score ring fill
-    const scoreAngle = (score / 10) * Math.PI * 2;
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, -Math.PI / 2, -Math.PI / 2 + scoreAngle);
-    ctx.strokeStyle = gradeColor;
-    ctx.lineWidth = 8;
-    ctx.lineCap = "round";
-    ctx.stroke();
-
-    // Score text
-    ctx.fillStyle = "#1A1A1A";
-    ctx.font = "bold 32px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(`${score}`, cx, cy + 8);
-    ctx.fillStyle = "#9B9B9B";
-    ctx.font = "12px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-    ctx.fillText("/10", cx + 24, cy + 8);
-
-    // Grade label
-    ctx.fillStyle = gradeColor;
-    ctx.font = "bold 14px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-    ctx.fillText(grade, cx, cy + 36);
-
-    // Menu description
-    ctx.fillStyle = "#6B6B6B";
-    ctx.font = "13px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-    const desc = deskripsi.length > 50 ? deskripsi.substring(0, 50) + "…" : deskripsi;
-    ctx.fillText(desc, cx, cy + 60);
-
-    ctx.textAlign = "left";
-
-    // Macro cards
-    const macroY = 300;
-    const macroData = [
-      { label: "Kalori", value: `${Math.round(totals.energi || 0)}`, unit: "kcal", color: "#F59E0B" },
-      { label: "Protein", value: `${(totals.protein || 0).toFixed(1)}`, unit: "g", color: "#3B82F6" },
-      { label: "Lemak", value: `${(totals.lemak || 0).toFixed(1)}`, unit: "g", color: "#EF4444" },
-      { label: "Karbo", value: `${(totals.karbohidrat || 0).toFixed(1)}`, unit: "g", color: "#F59E0B" },
-    ];
-
-    const cardGap = 12;
-    const cardW = (w - 48 - 48 - cardGap * 3) / 4;
-    macroData.forEach((m, i) => {
-      const x = 48 + i * (cardW + cardGap);
-      ctx.fillStyle = "#FAFAF8";
-      roundRect(ctx, x, macroY, cardW, 68, 12);
-      ctx.fill();
-      ctx.strokeStyle = "#F0F0EC";
-      ctx.lineWidth = 1;
-      roundRect(ctx, x, macroY, cardW, 68, 12);
-      ctx.stroke();
-
-      ctx.fillStyle = m.color;
-      ctx.font = "bold 18px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText(m.value, x + cardW / 2, macroY + 32);
-      ctx.fillStyle = "#9B9B9B";
-      ctx.font = "10px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-      ctx.fillText(m.unit, x + cardW / 2, macroY + 46);
-      ctx.fillStyle = "#6B6B6B";
-      ctx.font = "11px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-      ctx.fillText(m.label, x + cardW / 2, macroY + 62);
-    });
-
-    ctx.textAlign = "left";
-
-    // Items list
-    const listY = 400;
-    ctx.fillStyle = "#1A1A1A";
-    ctx.font = "bold 14px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-    ctx.fillText(`Makanan Terdeteksi (${items.length})`, 56, listY);
-
-    const visibleItems = items.slice(0, 6);
-    visibleItems.forEach((item, i) => {
-      const iy = listY + 24 + i * 38;
-
-      // Item dot
-      const catColors = {
-        protein_hewani: "#E67E22", protein_nabati: "#8B6914", karbohidrat: "#D4A017",
-        sayur: "#27AE60", buah: "#E74C3C", lainnya: "#7F8C8D",
-      };
-      ctx.fillStyle = catColors[item.kategori] || "#7F8C8D";
-      ctx.beginPath();
-      ctx.arc(66, iy + 5, 4, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Item name
-      ctx.fillStyle = "#1A1A1A";
-      ctx.font = "13px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-      const name = item.nama.length > 24 ? item.nama.substring(0, 24) + "…" : item.nama;
-      ctx.fillText(name, 82, iy + 9);
-
-      // Item gram
-      ctx.fillStyle = "#9B9B9B";
-      ctx.font = "11px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-      ctx.fillText(`${item.porsi_gram}g`, 300, iy + 9);
-
-      // Item macros
-      ctx.font = "11px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-      ctx.fillStyle = "#3B82F6";
-      ctx.fillText(`P:${(item.nutrisi_porsi?.protein || 0).toFixed(1)}`, 370, iy + 9);
-      ctx.fillStyle = "#EF4444";
-      ctx.fillText(`L:${(item.nutrisi_porsi?.lemak || 0).toFixed(1)}`, 430, iy + 9);
-      ctx.fillStyle = "#D4A017";
-      ctx.fillText(`K:${(item.nutrisi_porsi?.karbohidrat || 0).toFixed(1)}`, 490, iy + 9);
-    });
-
-    if (items.length > 6) {
-      ctx.fillStyle = "#9B9B9B";
-      ctx.font = "11px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-      ctx.fillText(`+${items.length - 6} item lainnya`, 82, listY + 24 + 6 * 38 + 9);
-    }
-
-    // Pricing summary (if available)
-    const pricingY = h - 135;
-    if (result?.pricing?.total_estimasi) {
-      ctx.fillStyle = "#FAFAF8";
-      roundRect(ctx, 48, pricingY, w - 96, 52, 12);
-      ctx.fill();
-      ctx.strokeStyle = "#F0F0EC";
-      ctx.lineWidth = 1;
-      roundRect(ctx, 48, pricingY, w - 96, 52, 12);
-      ctx.stroke();
-
-      ctx.fillStyle = "#1A1A1A";
-      ctx.font = "bold 13px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-      ctx.fillText("Estimasi Harga", 64, pricingY + 22);
-      ctx.fillStyle = "#6B6B6B";
-      ctx.font = "11px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-      ctx.fillText(`Budget MBG: Rp 15.000`, 64, pricingY + 40);
-
-      ctx.textAlign = "right";
-      ctx.fillStyle = "#1A1A1A";
-      ctx.font = "bold 18px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-      ctx.fillText(`Rp ${result.pricing.total_estimasi.toLocaleString("id-ID")}`, w - 64, pricingY + 32);
-      ctx.textAlign = "left";
-    }
-
-    // Footer
-    const footerY = h - 64;
-    ctx.fillStyle = "#CACAC5";
-    ctx.font = "11px 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("scanmbg.vercel.app · Powered by Gemini + Qwen AI", cx, footerY);
-    ctx.fillText("Data gizi berdasarkan TKPI Kemenkes RI", cx, footerY + 18);
-    ctx.textAlign = "left";
-
-    canvas.toBlob((blob) => resolve({ blob, canvas }), "image/png", 1.0);
-  });
-}
+// ── Canvas helpers ──────────────────────────────────────────
 
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -230,28 +20,394 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-export default function ShareModal({ result, isOpen, onClose }) {
+function fillRR(ctx, x, y, w, h, r, fill) {
+  roundRect(ctx, x, y, w, h, r);
+  ctx.fillStyle = fill;
+  ctx.fill();
+}
+
+function strokeRR(ctx, x, y, w, h, r, color, lw = 1) {
+  roundRect(ctx, x, y, w, h, r);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lw;
+  ctx.stroke();
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+// ── The embed image generator ───────────────────────────────
+
+const W = 1080; // High-res for mobile sharing
+const PAD = 60;
+
+async function generateShareCanvas(result, imageUrl) {
+  const score = result?.mbgScore?.score || 0;
+  const grade = result?.mbgScore?.gradeLabel || "";
+  const gradeColor = result?.mbgScore?.gradeColor || "#2AB05B";
+  const totals = result?.totals || {};
+  const items = result?.items || [];
+  const deskripsi = result?.deskripsi || "Menu MBG";
+  const pricing = result?.pricing;
+
+  // ── Calculate section heights
+  const IMG_H = imageUrl ? 380 : 0;
+  const HEADER_H = imageUrl ? 0 : 80;
+  const SCORE_H = 200;
+  const MACRO_H = 140;
+  const maxItems = Math.min(items.length, 5);
+  const ITEMS_H = 52 + maxItems * 52 + (items.length > 5 ? 40 : 0);
+  const PRICING_H = pricing?.total_estimasi ? 100 : 0;
+  const CTA_H = 60;
+  const FOOTER_H = 50;
+  const SPACING = 30 * 6;
+
+  const H = 40 + IMG_H + HEADER_H + SCORE_H + MACRO_H + ITEMS_H + PRICING_H + CTA_H + FOOTER_H + SPACING + 40;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+
+  // ── Background
+  ctx.fillStyle = "#EEF6EE";
+  ctx.fillRect(0, 0, W, H);
+
+  // ── Card
+  const cx0 = 20, cy0 = 20, cw = W - 40, ch = H - 40;
+  fillRR(ctx, cx0, cy0, cw, ch, 32, "#FFFFFF");
+  strokeRR(ctx, cx0, cy0, cw, ch, 32, "#E0E0DA");
+
+  ctx.save();
+  roundRect(ctx, cx0, cy0, cw, ch, 32);
+  ctx.clip();
+
+  let y = cy0;
+  const lx = cx0 + PAD; // left content edge
+  const rx = cx0 + cw - PAD; // right content edge
+  const contentW = cw - PAD * 2;
+  const center = W / 2;
+
+  // ── Food image ──────────────────────────────────────────
+  if (imageUrl) {
+    try {
+      const foodImg = await loadImage(imageUrl);
+      const sA = foodImg.width / foodImg.height;
+      const dA = cw / IMG_H;
+      let sx = 0, sy = 0, sw = foodImg.width, sh = foodImg.height;
+      if (sA > dA) { sw = foodImg.height * dA; sx = (foodImg.width - sw) / 2; }
+      else { sh = foodImg.width / dA; sy = (foodImg.height - sh) / 2; }
+      ctx.drawImage(foodImg, sx, sy, sw, sh, cx0, y, cw, IMG_H);
+    } catch {
+      const g = ctx.createLinearGradient(cx0, y, cx0 + cw, y + IMG_H);
+      g.addColorStop(0, "#E8F5E9"); g.addColorStop(1, "#C8E6C9");
+      ctx.fillStyle = g;
+      ctx.fillRect(cx0, y, cw, IMG_H);
+    }
+
+    // Gradient overlay
+    const ov = ctx.createLinearGradient(0, y + IMG_H - 120, 0, y + IMG_H);
+    ov.addColorStop(0, "rgba(0,0,0,0)");
+    ov.addColorStop(1, "rgba(0,0,0,0.55)");
+    ctx.fillStyle = ov;
+    ctx.fillRect(cx0, y + IMG_H - 120, cw, 120);
+
+    // Brand
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "bold 28px system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("ScanMBG", lx, y + IMG_H - 30);
+
+    // Score badge top-right on image
+    const bw = 120, bh = 50;
+    const bx = rx - bw, by = y + IMG_H - bh - 24;
+    fillRR(ctx, bx, by, bw, bh, 14, "rgba(255,255,255,0.95)");
+    ctx.fillStyle = gradeColor;
+    ctx.font = "bold 26px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(`${score}/10`, bx + bw / 2, by + 33);
+
+    y += IMG_H;
+  }
+
+  ctx.restore();
+  ctx.save();
+  roundRect(ctx, cx0, cy0, cw, ch, 32);
+  ctx.clip();
+
+  // ── If no image, show header
+  if (!imageUrl) {
+    y += 30;
+    ctx.fillStyle = "#2AB05B";
+    ctx.font = "bold 36px system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("ScanMBG", lx, y + 36);
+    ctx.fillStyle = "#ABABAB";
+    ctx.font = "20px system-ui, sans-serif";
+    ctx.fillText("Analisis Gizi MBG", lx, y + 62);
+    y += HEADER_H;
+  }
+
+  y += 30;
+
+  // ── Score ring ──────────────────────────────────────────
+  const ringR = 58;
+  const ringCy = y + ringR + 10;
+
+  // Background ring
+  ctx.beginPath();
+  ctx.arc(center, ringCy, ringR, 0, Math.PI * 2);
+  ctx.strokeStyle = "#F0F0EC";
+  ctx.lineWidth = 10;
+  ctx.stroke();
+
+  // Score arc
+  const angle = (score / 10) * Math.PI * 2;
+  ctx.beginPath();
+  ctx.arc(center, ringCy, ringR, -Math.PI / 2, -Math.PI / 2 + angle);
+  ctx.strokeStyle = gradeColor;
+  ctx.lineWidth = 10;
+  ctx.lineCap = "round";
+  ctx.stroke();
+  ctx.lineCap = "butt";
+
+  // Score text inside ring — measure with correct fonts to avoid overlap
+  ctx.font = "bold 38px system-ui, sans-serif";
+  const scoreStr = `${score}`;
+  const scoreW = ctx.measureText(scoreStr).width;
+  ctx.font = "16px system-ui, sans-serif";
+  const tenStr = "/10";
+  const tenW = ctx.measureText(tenStr).width;
+  const totalW = scoreW + 4 + tenW;
+  const groupX = center - totalW / 2;
+
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#1A1A1A";
+  ctx.font = "bold 38px system-ui, sans-serif";
+  ctx.fillText(scoreStr, groupX, ringCy + 13);
+  ctx.fillStyle = "#ABABAB";
+  ctx.font = "16px system-ui, sans-serif";
+  ctx.fillText(tenStr, groupX + scoreW + 4, ringCy + 13);
+
+  // Grade label below ring
+  ctx.textAlign = "center";
+  ctx.fillStyle = gradeColor;
+  ctx.font = "bold 22px system-ui, sans-serif";
+  ctx.fillText(grade, center, ringCy + ringR + 32);
+
+  y = ringCy + ringR + 56;
+
+  // ── Description ─────────────────────────────────────────
+  ctx.fillStyle = "#7A7A7A";
+  ctx.font = "18px system-ui, sans-serif";
+  const maxDescW = contentW - 40;
+  const words = deskripsi.split(" ");
+  let line = "";
+  let lines = [];
+  for (const w of words) {
+    const test = line ? line + " " + w : w;
+    if (ctx.measureText(test).width > maxDescW && line) {
+      lines.push(line);
+      line = w;
+    } else {
+      line = test;
+    }
+  }
+  if (line) lines.push(line);
+  lines.slice(0, 3).forEach((l, i) => {
+    ctx.fillText(l, center, y + i * 26);
+  });
+  ctx.textAlign = "left";
+  y += Math.min(lines.length, 3) * 26 + 24;
+
+  // ── Macro cards ─────────────────────────────────────────
+  const macros = [
+    { label: "Kalori", val: `${Math.round(totals.energi || 0)}`, unit: "kcal", color: "#F59E0B" },
+    { label: "Protein", val: `${(totals.protein || 0).toFixed(1)}`, unit: "g", color: "#3B82F6" },
+    { label: "Lemak", val: `${(totals.lemak || 0).toFixed(1)}`, unit: "g", color: "#EF4444" },
+    { label: "Karbo", val: `${(totals.karbohidrat || 0).toFixed(1)}`, unit: "g", color: "#D4A017" },
+  ];
+
+  const gapM = 16;
+  const mW = (contentW - gapM * 3) / 4;
+  const mH = 105;
+
+  macros.forEach((m, i) => {
+    const mx = lx + i * (mW + gapM);
+    fillRR(ctx, mx, y, mW, mH, 16, "#FAFAF8");
+    strokeRR(ctx, mx, y, mW, mH, 16, "#EFEFE8");
+
+    // Color accent
+    fillRR(ctx, mx + 14, y + 8, mW - 28, 4, 2, m.color);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = m.color;
+    ctx.font = "bold 30px system-ui, sans-serif";
+    ctx.fillText(m.val, mx + mW / 2, y + 48);
+    ctx.fillStyle = "#ABABAB";
+    ctx.font = "14px system-ui, sans-serif";
+    ctx.fillText(m.unit, mx + mW / 2, y + 68);
+    ctx.fillStyle = "#7A7A7A";
+    ctx.font = "600 16px system-ui, sans-serif";
+    ctx.fillText(m.label, mx + mW / 2, y + 92);
+  });
+  ctx.textAlign = "left";
+  y += mH + 30;
+
+  // ── Food items list ─────────────────────────────────────
+  ctx.fillStyle = "#1A1A1A";
+  ctx.font = "bold 22px system-ui, sans-serif";
+  ctx.fillText(`Makanan Terdeteksi (${items.length})`, lx, y + 6);
+  y += 30;
+
+  const catColors = {
+    protein_hewani: "#E67E22", protein_nabati: "#8B6914", karbohidrat: "#D4A017",
+    sayur: "#27AE60", buah: "#E74C3C", lainnya: "#7F8C8D",
+  };
+
+  items.slice(0, 5).forEach((item) => {
+    // Dot
+    ctx.fillStyle = catColors[item.kategori] || "#7F8C8D";
+    ctx.beginPath();
+    ctx.arc(lx + 10, y + 12, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Name
+    ctx.fillStyle = "#1A1A1A";
+    ctx.font = "600 20px system-ui, sans-serif";
+    const name = item.nama.length > 18 ? item.nama.substring(0, 18) + "…" : item.nama;
+    ctx.fillText(name, lx + 30, y + 18);
+
+    // Gram
+    ctx.fillStyle = "#ABABAB";
+    ctx.font = "16px system-ui, sans-serif";
+    ctx.fillText(`${item.porsi_gram}g`, lx + 320, y + 18);
+
+    // P / L / K columns — right aligned
+    ctx.font = "600 16px system-ui, sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#3B82F6";
+    ctx.fillText(`P:${(item.nutrisi_porsi?.protein || 0).toFixed(1)}`, rx - 200, y + 18);
+    ctx.fillStyle = "#EF4444";
+    ctx.fillText(`L:${(item.nutrisi_porsi?.lemak || 0).toFixed(1)}`, rx - 100, y + 18);
+    ctx.fillStyle = "#D4A017";
+    ctx.fillText(`K:${(item.nutrisi_porsi?.karbohidrat || 0).toFixed(1)}`, rx, y + 18);
+    ctx.textAlign = "left";
+
+    y += 52;
+  });
+
+  if (items.length > 5) {
+    ctx.fillStyle = "#ABABAB";
+    ctx.font = "16px system-ui, sans-serif";
+    ctx.fillText(`+${items.length - 5} item lainnya`, lx + 30, y + 10);
+    y += 40;
+  }
+
+  y += 16;
+
+  // ── Pricing ─────────────────────────────────────────────
+  if (pricing?.total_estimasi) {
+    fillRR(ctx, lx, y, contentW, 80, 16, "#FAFAF8");
+    strokeRR(ctx, lx, y, contentW, 80, 16, "#EFEFE8");
+
+    ctx.fillStyle = "#1A1A1A";
+    ctx.font = "bold 20px system-ui, sans-serif";
+    ctx.fillText("Estimasi Harga", lx + 24, y + 32);
+    ctx.fillStyle = "#ABABAB";
+    ctx.font = "16px system-ui, sans-serif";
+    ctx.fillText("Budget MBG: Rp 15.000", lx + 24, y + 58);
+
+    const isUnder = (pricing.selisih || 0) >= 0;
+    ctx.textAlign = "right";
+    ctx.fillStyle = isUnder ? "#22C55E" : "#EF4444";
+    ctx.font = "bold 28px system-ui, sans-serif";
+    ctx.fillText(`Rp ${pricing.total_estimasi.toLocaleString("id-ID")}`, rx - 24, y + 50);
+    ctx.textAlign = "left";
+
+    y += 100;
+  }
+
+  // ── CTA
+  y += 8;
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#2AB05B";
+  ctx.font = "bold 18px system-ui, sans-serif";
+  ctx.fillText("Cek gizi menu MBG kamu juga di scanmbg.vercel.app 👆", center, y + 10);
+
+  // ── Footer
+  ctx.restore();
+  ctx.fillStyle = "#C5C5C0";
+  ctx.font = "14px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("Powered by Gemini + Qwen AI · Data TKPI Kemenkes RI", center, H - 28);
+  ctx.textAlign = "left";
+
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => resolve(blob), "image/png", 1.0);
+  });
+}
+
+// ── X icon ──────────────────────────────────────────────────
+
+const XIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+
+// ── ShareModal ──────────────────────────────────────────────
+
+export default function ShareModal({ result, imageUrl, isOpen, onClose }) {
   const [copied, setCopied] = useState(false);
   const [embedPreview, setEmbedPreview] = useState(null);
   const [generating, setGenerating] = useState(false);
-  const canvasRef = useRef(null);
+  const blobRef = useRef(null);
 
-  const generateEmbed = useCallback(async () => {
-    setGenerating(true);
-    try {
-      const { blob, canvas } = await generateShareCanvas(result);
-      const url = URL.createObjectURL(blob);
-      setEmbedPreview(url);
-      canvasRef.current = { blob, canvas };
-    } catch (err) {
-      console.error("Failed to generate embed:", err);
+  // Auto-generate embed on open
+  useEffect(() => {
+    if (!isOpen || !result) {
+      setEmbedPreview(null);
+      blobRef.current = null;
+      return;
     }
-    setGenerating(false);
-  }, [result]);
+    let cancelled = false;
+    setGenerating(true);
+    generateShareCanvas(result, imageUrl)
+      .then((blob) => {
+        if (cancelled) return;
+        setEmbedPreview(URL.createObjectURL(blob));
+        blobRef.current = blob;
+        setGenerating(false);
+      })
+      .catch(() => { if (!cancelled) setGenerating(false); });
+    return () => { cancelled = true; };
+  }, [isOpen, result, imageUrl]);
+
+  if (!isOpen) return null;
+
+  const siteUrl = "https://scanmbg.vercel.app";
+  const score = result?.mbgScore?.score || 0;
+  const grade = result?.mbgScore?.gradeLabel || "";
+  const totalKalori = Math.round(result?.totals?.energi || 0);
+  const totalProtein = (result?.totals?.protein || 0).toFixed(1);
+  const totalLemak = (result?.totals?.lemak || 0).toFixed(1);
+  const totalKarbo = (result?.totals?.karbohidrat || 0).toFixed(1);
+  const itemCount = result?.items?.length || 0;
+
+  // The detailed message the user likes
+  const detailedText = `🍱 Ini Score Menu MBG-ku hari ini!\n\n📊 Skor: ${score}/10 (${grade})\n🔥 Kalori: ${totalKalori} kcal\n💪 Protein: ${totalProtein}g | Lemak: ${totalLemak}g | Karbo: ${totalKarbo}g\n🥗 ${itemCount} item terdeteksi\n\nMau cek gizi menu MBG kamu juga? Scan di sini 👇\n${siteUrl}`;
 
   const downloadEmbed = () => {
-    if (!canvasRef.current?.blob) return;
-    const url = URL.createObjectURL(canvasRef.current.blob);
+    if (!blobRef.current) return;
+    const url = URL.createObjectURL(blobRef.current);
     const a = document.createElement("a");
     a.href = url;
     a.download = `scanmbg-hasil-${result?.id || "scan"}.png`;
@@ -259,49 +415,62 @@ export default function ShareModal({ result, isOpen, onClose }) {
     URL.revokeObjectURL(url);
   };
 
-  const shareEmbed = async () => {
-    if (!canvasRef.current?.blob) return;
-    const file = new File([canvasRef.current.blob], `scanmbg-hasil.png`, { type: "image/png" });
-    if (navigator.share && navigator.canShare?.({ files: [file] })) {
-      try {
-        await navigator.share({
-          text: shareText,
-          files: [file],
-        });
-      } catch {}
-    } else {
-      downloadEmbed();
+  const shareWhatsApp = async () => {
+    // Try Web Share API first (works well on mobile — image+text together)
+    if (blobRef.current && navigator.share) {
+      const file = new File([blobRef.current], "scanmbg-hasil.png", { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], text: detailedText });
+          return;
+        } catch { /* user cancelled or failed, fall through */ }
+      }
     }
+    // Fallback: open WhatsApp with text (user can attach downloaded image)
+    downloadEmbed();
+    window.open(`https://wa.me/?text=${encodeURIComponent(detailedText)}`, "_blank");
   };
 
-  if (!isOpen) return null;
+  const shareX = async () => {
+    const xText = `🍱 Score Menu MBG-ku: ${score}/10 (${grade}) | ${totalKalori} kcal | P:${totalProtein}g L:${totalLemak}g K:${totalKarbo}g\n\nCek gizi MBG kamu juga!`;
+    if (blobRef.current && navigator.share) {
+      const file = new File([blobRef.current], "scanmbg-hasil.png", { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], text: xText });
+          return;
+        } catch { /* fall through */ }
+      }
+    }
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(xText)}&url=${encodeURIComponent(siteUrl)}`, "_blank");
+  };
 
-  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
-  const score = result?.mbgScore?.score || 0;
-  const grade = result?.mbgScore?.gradeLabel || "";
-  const totalKalori = Math.round(result?.totals?.energi || 0);
-  const totalProtein = Math.round((result?.totals?.protein || 0) * 10) / 10;
-  const totalLemak = Math.round((result?.totals?.lemak || 0) * 10) / 10;
-  const totalKarbo = Math.round((result?.totals?.karbohidrat || 0) * 10) / 10;
-  const itemCount = result?.items?.length || 0;
+  const shareGeneric = async () => {
+    if (blobRef.current && navigator.share) {
+      const file = new File([blobRef.current], "scanmbg-hasil.png", { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], text: detailedText });
+          return;
+        } catch { /* fall through */ }
+      }
+    }
+    downloadEmbed();
+  };
 
-  const shareText = `Hasil Scan MBG via ScanMBG\n\nSkor: ${score}/10 (${grade})\nKalori: ${totalKalori} kcal\nProtein: ${totalProtein}g | Lemak: ${totalLemak}g | Karbo: ${totalKarbo}g\n${itemCount} item terdeteksi\n\nCek gizi MBG: ${shareUrl}`;
-
-  const copyLink = async () => {
+  const copyText = async () => {
     try {
-      await navigator.clipboard.writeText(shareText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(detailedText);
     } catch {
       const ta = document.createElement("textarea");
-      ta.value = shareText;
+      ta.value = detailedText;
       document.body.appendChild(ta);
       ta.select();
       document.execCommand("copy");
       document.body.removeChild(ta);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -318,81 +487,62 @@ export default function ShareModal({ result, isOpen, onClose }) {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 80, opacity: 0 }}
           transition={{ type: "spring", damping: 28, stiffness: 350 }}
-          className="card w-full max-w-sm p-6 max-h-[85vh] overflow-y-auto"
+          className="card w-full max-w-sm p-5 max-h-[85vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center justify-between mb-5">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
             <h3 className="text-[15px] font-bold text-text">Bagikan Hasil</h3>
             <button onClick={onClose} className="flex h-7 w-7 items-center justify-center rounded-full bg-bg-subtle text-text-tertiary hover:bg-bg-muted transition-colors">
               <X className="h-3.5 w-3.5" />
             </button>
           </div>
 
-          {/* Embed image preview */}
-          {!embedPreview ? (
-            <button
-              onClick={generateEmbed}
-              disabled={generating}
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary-light py-4 mb-4 text-[13px] font-semibold text-primary transition-colors hover:bg-primary-light/80"
-            >
-              <ImageIcon className="h-4 w-4" />
-              {generating ? "Membuat gambar..." : "Buat Gambar Embed"}
-            </button>
-          ) : (
-            <div className="mb-4">
-              <div className="rounded-2xl overflow-hidden border border-border-light mb-2">
-                <img src={embedPreview} alt="Share embed" className="w-full" />
+          {/* Embed preview */}
+          <div className="mb-4">
+            {generating ? (
+              <div className="flex items-center justify-center rounded-2xl bg-bg-subtle py-14">
+                <div className="flex items-center gap-2 text-[13px] text-text-tertiary">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
+                    className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full"
+                  />
+                  Membuat gambar...
+                </div>
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={downloadEmbed}
-                  className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-bg-subtle py-2.5 text-[12px] font-semibold text-text-secondary hover:bg-bg-muted transition-colors"
-                >
-                  <Download className="h-3.5 w-3.5" />
-                  Download
-                </button>
-                <button
-                  onClick={shareEmbed}
-                  className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-primary py-2.5 text-[12px] font-semibold text-white hover:bg-primary-dark transition-colors"
-                >
-                  <Share2 className="h-3.5 w-3.5" />
-                  Share
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Quick score preview */}
-          <div className="card-flat mb-4 p-4 text-center">
-            <div className="text-[24px] font-bold text-text">{score}/10</div>
-            <div className="text-[11px] text-text-secondary">
-              {grade} · {totalKalori} kcal · P:{totalProtein}g L:{totalLemak}g K:{totalKarbo}g
-            </div>
+            ) : embedPreview ? (
+              <>
+                <div className="rounded-2xl overflow-hidden border border-border-light mb-2.5 shadow-sm">
+                  <img src={embedPreview} alt="Share embed" className="w-full" />
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={downloadEmbed} className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-bg-subtle py-2.5 text-[12px] font-semibold text-text-secondary hover:bg-bg-muted transition-colors">
+                    <Download className="h-3.5 w-3.5" />
+                    Download
+                  </button>
+                  <button onClick={shareGeneric} className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-primary py-2.5 text-[12px] font-semibold text-white hover:bg-primary-dark transition-colors">
+                    <Share2 className="h-3.5 w-3.5" />
+                    Share
+                  </button>
+                </div>
+              </>
+            ) : null}
           </div>
 
+          {/* Share buttons */}
           <div className="grid grid-cols-2 gap-2.5">
-            <a
-              href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}
-              target="_blank" rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-2xl bg-[#25D366]/10 px-4 py-3 text-[13px] font-semibold text-[#25D366] transition-colors hover:bg-[#25D366]/20"
-            >
+            <button onClick={shareWhatsApp} className="flex items-center justify-center gap-2 rounded-2xl bg-[#25D366]/10 px-4 py-3 text-[13px] font-semibold text-[#25D366] transition-colors hover:bg-[#25D366]/20">
               <MessageCircle className="h-4 w-4" />
               WhatsApp
-            </a>
+            </button>
 
-            <a
-              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Scan MBG: Skor ${score}/10 (${grade}) | ${totalKalori} kcal | P:${totalProtein}g L:${totalLemak}g K:${totalKarbo}g`)}&url=${encodeURIComponent(shareUrl)}`}
-              target="_blank" rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-2xl bg-[#1DA1F2]/10 px-4 py-3 text-[13px] font-semibold text-[#1DA1F2] transition-colors hover:bg-[#1DA1F2]/20"
-            >
-              <Send className="h-4 w-4" />
-              Twitter
-            </a>
+            <button onClick={shareX} className="flex items-center justify-center gap-2 rounded-2xl bg-neutral-100 px-4 py-3 text-[13px] font-semibold text-neutral-800 transition-colors hover:bg-neutral-200">
+              <XIcon className="h-3.5 w-3.5" />
+              Post di X
+            </button>
 
-            <button
-              onClick={copyLink}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-bg-subtle px-4 py-3 text-[13px] font-semibold text-text-secondary transition-colors hover:bg-bg-muted col-span-2"
-            >
+            <button onClick={copyText} className="flex items-center justify-center gap-2 rounded-2xl bg-bg-subtle px-4 py-3 text-[13px] font-semibold text-text-secondary transition-colors hover:bg-bg-muted col-span-2">
               {copied ? (
                 <><Check className="h-4 w-4 text-primary" /><span className="text-primary">Tersalin!</span></>
               ) : (
