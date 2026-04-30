@@ -88,8 +88,11 @@ export async function POST(request) {
             console.error("Qwen vision fallback also failed:", qwenErr.message);
             const qwenMsg = qwenErr.message || "";
             const isQwenTimeout = qwenMsg.includes("timeout") || qwenMsg.includes("AbortError");
+            const isUnsupportedImage = qwenMsg.includes("does not support image input") || qwenMsg.includes("Cannot read");
             return NextResponse.json(
-              { error: isQwenTimeout
+              { error: isUnsupportedImage
+                ? "Model AI tidak mendukung analisis gambar saat ini. Coba lagi atau gunakan Input Manual."
+                : isQwenTimeout
                 ? "AI sedang sibuk (timeout). Silakan coba lagi dalam beberapa detik."
                 : `AI vision gagal. Silakan coba lagi atau gunakan Input Manual.` },
               { status: 503 }

@@ -109,6 +109,14 @@ export default function ResultPage() {
       .then((data) => {
         setAiAnalysis(data);
         setAiLoading(false);
+        // Persist AI analysis so it doesn't regenerate on refresh
+        try {
+          const stored = JSON.parse(localStorage.getItem(`scan_${params.id}`));
+          if (stored) {
+            stored.aiAnalysis = data;
+            localStorage.setItem(`scan_${params.id}`, JSON.stringify(stored));
+          }
+        } catch {}
       })
       .catch(() => {
         setAiError("AI analisis tidak tersedia saat ini.");
