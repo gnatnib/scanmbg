@@ -145,3 +145,7 @@ body {
   background: var(--color-danger-light);
   color: var(--color-danger);
 }
+
+/* Hide scrollbar but keep scroll functionality */
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }

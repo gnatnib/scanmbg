@@ -10,8 +10,8 @@ import ManualInput from "@/components/ManualInput";
 import { compressImage } from "@/lib/image-utils";
 import {
   Camera as CameraIcon, ImagePlus, PenLine,
-  ScanLine, AlertCircle, ShieldCheck, Users, Banknote,
-  Utensils, BarChart3, Eye, Sparkles, ChefHat, Target, X, Check, ChevronRight, Clock
+  ScanLine, AlertCircle, ShieldCheck, Banknote,
+  Utensils, BarChart3, Eye, Sparkles, X, Check, Clock, ChevronUp, ChevronDown
 } from "lucide-react";
 
 /* ── Animated counter ────────────────────────────────── */
@@ -49,6 +49,7 @@ export default function HomePage() {
   const [analysisStep, setAnalysisStep] = useState(0);
   const [error, setError] = useState(null);
   const [recentScans, setRecentScans] = useState([]);
+  const [scansExpanded, setScansExpanded] = useState(false);
 
   // Load recent scans
   useEffect(() => {
@@ -65,9 +66,8 @@ export default function HomePage() {
         } catch (e) {}
       }
     }
-    // Reverse to get the latest (rough approximation without timestamp)
-    scans.reverse();
-    setRecentScans(scans.slice(0, 3));
+    scans.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+    setRecentScans(scans.slice(0, 14));
   }, [viewState]);
 
   // Auto-advance step during analysis
@@ -380,50 +380,74 @@ export default function HomePage() {
                   transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
                   className="mt-8"
                 >
-                  <div className="flex justify-between items-center mb-4">
+                  <div className="flex justify-between items-center mb-3">
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-text-tertiary" />
-                      <h3 className="text-[15px] font-bold text-text">Baru Saja di-Scan</h3>
+                      <h3 className="text-[15px] font-bold text-text">Riwayat Scan</h3>
                     </div>
+                    {recentScans.length > 0 && (
+                      <span className="rounded-full bg-bg-subtle px-2 py-0.5 text-[10px] font-semibold text-text-tertiary">{recentScans.length}</span>
+                    )}
                   </div>
 
                   {recentScans.length > 0 ? (
-                    <div className="space-y-3">
-                      {recentScans.map((scan, i) => (
-                        <motion.div 
-                          key={scan.id} 
-                          onClick={() => router.push(`/result/${scan.id}`)} 
-                          className="w-full flex items-center gap-4 rounded-3xl bg-white border border-border-light p-3 shadow-sm hover:shadow-md active:scale-[0.98] transition-all cursor-pointer"
-                        >
-                          <div className="h-14 w-14 rounded-2xl bg-bg-subtle overflow-hidden shrink-0 border border-border-light/50">
-                             {scan.image ? (
-                               <img src={scan.image} alt="Thumbnail Scan" className="h-full w-full object-cover" />
-                             ) : (
-                               <div className="flex h-full w-full items-center justify-center text-text-tertiary">
-                                 <Utensils className="h-5 w-5" />
-                               </div>
-                             )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-[14px] font-bold text-text truncate">
-                              {scan.timestamp 
-                                ? new Date(scan.timestamp).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).replace(/\./g, ':') 
-                                : scan.foodName || scan.manualItems?.map(i => i.name).join(", ") || "Menu Makanan"
-                              }
-                            </h4>
-                            <div className="flex items-center gap-2 mt-1">
-                               <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
-                                 <Sparkles className="h-3 w-3" />
-                                 Skor {Number(scan.mbgScore?.score || 0).toFixed(1)}
-                               </span>
-                               <span className="text-[10px] text-text-tertiary">·</span>
-                               <span className="text-[11px] font-medium text-text-secondary">{Math.round(scan.totals?.energi || 0)} kcal</span>
+                    <>
+                      <div className="grid grid-cols-2 gap-2.5">
+                        {(scansExpanded ? recentScans : recentScans.slice(0, 4)).map((scan, i) => (
+                          <motion.div 
+                            key={scan.id} 
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.04 }}
+                            onClick={() => router.push(`/result/${scan.id}`)} 
+                            className="rounded-2xl bg-white border border-border-light shadow-sm hover:shadow-md active:scale-[0.97] transition-all cursor-pointer overflow-hidden"
+                          >
+                            <div className="relative h-[76px] bg-bg-subtle">
+                              {scan.image ? (
+                                <img src={scan.image} alt="Scan" className="h-full w-full object-cover" />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center text-text-tertiary/30">
+                                  <Utensils className="h-6 w-6" />
+                                </div>
+                              )}
+                              <div className="absolute top-1.5 right-1.5 rounded-full bg-white/90 backdrop-blur-sm px-1.5 py-0.5 flex items-center gap-0.5">
+                                <Sparkles className="h-2.5 w-2.5 text-primary" />
+                                <span className="text-[9px] font-bold text-primary">{Number(scan.mbgScore?.score || 0).toFixed(1)}</span>
+                              </div>
                             </div>
-                          </div>
-                          <ChevronRight className="h-4 w-4 text-text-tertiary mr-2 shrink-0" />
-                        </motion.div>
-                      ))}
-                    </div>
+                            <div className="p-2.5">
+                              <p className="text-[11px] font-bold text-text truncate leading-tight mb-1.5">
+                                {scan.items?.map(i => i.nama).slice(0, 2).join(", ") || scan.deskripsi || "Menu MBG"}
+                                {(scan.items?.length || 0) > 2 && <span className="font-normal text-text-tertiary"> +{scan.items.length - 2}</span>}
+                              </p>
+                              <div className="flex items-center gap-1.5">
+                                {scan.timestamp && (
+                                  <span className="inline-flex items-center rounded-md bg-primary-light px-1.5 py-0.5 text-[8px] font-semibold text-primary-dark">
+                                    {new Date(scan.timestamp).toLocaleString("id-ID", { day: "numeric", month: "short" })}
+                                  </span>
+                                )}
+                                <span className="inline-flex items-center rounded-md bg-warning-light px-1.5 py-0.5 text-[8px] font-semibold text-warning">
+                                  {Math.round(scan.totals?.energi || 0)} kkal
+                                </span>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+
+                      {recentScans.length > 4 && (
+                        <button
+                          onClick={() => setScansExpanded(!scansExpanded)}
+                          className="flex w-full items-center justify-center gap-1 mt-3 py-2 rounded-xl bg-bg-subtle text-[11px] font-semibold text-text-secondary hover:bg-bg-muted transition-colors"
+                        >
+                          {scansExpanded ? (
+                            <>Lebih Sedikit <ChevronUp className="h-3 w-3" /></>
+                          ) : (
+                            <>Lihat Semua ({recentScans.length}) <ChevronDown className="h-3 w-3" /></>
+                          )}
+                        </button>
+                      )}
+                    </>
                   ) : (
                      <div className="card-flat p-6 text-center border-dashed border-2 border-border-light bg-white/50">
                         <Utensils className="h-8 w-8 text-text-tertiary mx-auto mb-2 opacity-40" />
@@ -438,10 +462,10 @@ export default function HomePage() {
           </AnimatePresence>
 
           {/* Error Message */}
-          {error && viewState !== "home" && (
+          {error && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 flex items-start gap-2.5 rounded-2xl bg-danger-light p-4">
               <AlertCircle className="h-4 w-4 text-danger mt-0.5 shrink-0" />
-              <div>
+              <div className="flex-1">
                 <p className="text-[12px] font-medium text-danger">{error}</p>
                 <button onClick={() => setError(null)} className="mt-1 text-[11px] text-danger/70 underline">Tutup</button>
               </div>
