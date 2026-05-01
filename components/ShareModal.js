@@ -349,7 +349,7 @@ async function generateShareCanvas(result, imageUrl) {
   ctx.fillStyle = "#C5C5C0";
   ctx.font = "14px system-ui, sans-serif";
   ctx.textAlign = "center";
-  ctx.fillText("Powered by Gemini + Qwen AI · Data TKPI Kemenkes RI", center, H - 28);
+  ctx.fillText("Powered by Gemini + Gemma AI · Data TKPI Kemenkes RI", center, H - 28);
   ctx.textAlign = "left";
 
   return new Promise((resolve) => {

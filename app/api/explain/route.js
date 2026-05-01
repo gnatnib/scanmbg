@@ -3,11 +3,6 @@ import { analyzeWithOllama } from "@/lib/ollama";
 
 export const maxDuration = 120;
 
-/**
- * Lazy AI explanation endpoint.
- * Called asynchronously by the result page AFTER initial results are displayed.
- * This keeps the main scan pipeline fast (~5s).
- */
 export async function POST(request) {
   try {
     const { items, totals, mbgScore } = await request.json();
@@ -20,18 +15,25 @@ export async function POST(request) {
     }
 
     let aiAnalysis;
+
+    // 1. Try Gemini Text (fast ~1-2s)
     try {
-      // 1. Coba pakai Gemini Text (Sangat cepat ~1-2 detik)
       const { analyzeExplanationWithGemini } = await import("@/lib/gemini");
       aiAnalysis = await analyzeExplanationWithGemini(items, totals, mbgScore);
     } catch (geminiErr) {
-      console.log("Gemini text explanation failed, falling back to Ollama...", geminiErr.message);
-      // 2. Jika Gemini gagal (misal limit 429), fallback ke Ollama (bisa butuh 10-30 detik)
+      console.log("Gemini explanation failed, trying Ollama...", geminiErr.message);
+    }
+
+    // 2. Try Ollama (fallback)
+    if (!aiAnalysis) {
       try {
         aiAnalysis = await analyzeWithOllama(items, totals, mbgScore);
       } catch (ollamaErr) {
-        console.error("Ollama explanation fallback failed:", ollamaErr.message);
-        throw new Error("Kedua AI (Gemini & Ollama) gagal merespons");
+        console.error("All explanation providers failed:", ollamaErr.message);
+        return NextResponse.json(
+          { error: "AI analisis tidak tersedia saat ini.", penjelasan_skor: "", penjelasan_nutrisi: "", rekomendasi: [] },
+          { status: 200 }
+        );
       }
     }
 

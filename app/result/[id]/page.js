@@ -211,7 +211,7 @@ export default function ResultPage() {
               <div>
                 <h3 className="text-[14px] font-bold text-text">Analisis AI</h3>
                 <p className="text-[10px] text-text-tertiary">
-                  {aiLoading ? "Memuat analisis…" : aiError ? "Tidak tersedia" : "Qwen AI Analysis"}
+                  {aiLoading ? "Memuat analisis…" : aiError ? "Tidak tersedia" : "Gemma AI Analysis"}
                 </p>
               </div>
             </div>

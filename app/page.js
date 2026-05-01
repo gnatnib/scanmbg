@@ -33,7 +33,7 @@ function AnimatedCounter({ target, suffix = "", duration = 2000 }) {
 const ANALYSIS_STEPS = [
   { icon: Eye, label: "Mendeteksi makanan…", sublabel: "Gemini Vision AI" },
   { icon: Utensils, label: "Mengidentifikasi menu…", sublabel: "Database TKPI" },
-  { icon: BarChart3, label: "Menghitung nutrisi…", sublabel: "Qwen 3.5 AI" },
+  { icon: BarChart3, label: "Menghitung nutrisi…", sublabel: "Gemma 4 AI" },
   { icon: Banknote, label: "Estimasi harga…", sublabel: "Pasar tradisional" },
   { icon: ShieldCheck, label: "Menyiapkan hasil…", sublabel: "Standar Kemenkes" },
 ];
@@ -423,7 +423,7 @@ export default function HomePage() {
                               <div className="flex items-center gap-1.5">
                                 {scan.timestamp && (
                                   <span className="inline-flex items-center rounded-md bg-primary-light px-1.5 py-0.5 text-[8px] font-semibold text-primary-dark">
-                                    {new Date(scan.timestamp).toLocaleString("id-ID", { day: "numeric", month: "short" })}
+                                    {new Date(scan.timestamp).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).replace(/\./g, ':')}
                                   </span>
                                 )}
                                 <span className="inline-flex items-center rounded-md bg-warning-light px-1.5 py-0.5 text-[8px] font-semibold text-warning">

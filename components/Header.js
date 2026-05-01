@@ -51,7 +51,7 @@ export default function Header({ hideScanButton = false }) {
         className="sticky top-0 z-50 bg-bg/80 backdrop-blur-xl border-b border-border-light"
       >
         <nav className="mx-auto flex max-w-lg items-center justify-between px-5 py-3">
-          <Link href="/" className="flex items-center gap-2.5">
+          <Link href="/" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); if (window.location.pathname !== "/") window.location.href = "/"; }} className="flex items-center gap-2.5">
             <ScanMBGLogo size={34} />
             <span className="text-[18px] font-extrabold tracking-tight text-text">
               Scan<span className="text-primary">MBG</span>
@@ -131,7 +131,7 @@ export default function Header({ hideScanButton = false }) {
                     Google Gemini Flash
                   </span>
                   <span className="rounded-full bg-white px-2.5 py-1 text-text-secondary font-medium shadow-sm">
-                    Qwen 3.5
+                    Gemma 4
                   </span>
                   <span className="rounded-full bg-white px-2.5 py-1 text-text-secondary font-medium shadow-sm">
                     TKPI Database
